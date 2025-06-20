@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
-import { RPGHub } from '@/components/RPGHub';
+import RPGHub from '@/components/RPGHub';
 import { ProjectView } from '@/components/ProjectView';
 import { Terminal } from '@/components/Terminal';
 import { Project } from '@/lib/types';
@@ -84,11 +84,7 @@ export default function HomePage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="relative z-10"
-          >
-            <RPGHub 
-              onProjectSelect={handleProjectSelect}
-              onCommandsView={handleBackToTerminal}
-            />
+          >            <RPGHub />
           </motion.div>
         )}
 
