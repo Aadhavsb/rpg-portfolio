@@ -1,53 +1,257 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { useGameStore } from '@/lib/store';
+import { Project } from '@/lib/types';
+import { RPGHub } from '@/components/RPGHub';
+import { ProjectView } from '@/components/ProjectView';
+import { TerminalComponent } from '@/components/Terminal';
+import portfolioData from '@/data/portfolio.json';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentView, setCurrentView] = useState<'hub' | 'project' | 'terminal'>('hub');
+  const [showTerminal, setShowTerminal] = useState(false);
+  const [availableCommands, setAvailableCommands] = useState<string[]>([]);
+  const [idleTimer, setIdleTimer] = useState(0);
+  
+  const {
+    projects,
+    currentProject,
+    setCurrentProject,
+    unlockProject,
+    completeProject,
+    addTerminalEntry,
+    getNextAvailableProject,
+    getAllProjectsCompleted,
+    unlockedProjects,
+    completedProjects
+  } = useGameStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Initialize first project
+  useEffect(() => {
+    if (unlockedProjects.length === 0) {
+      const firstProject = projects[0];
+      if (firstProject) {
+        unlockProject(firstProject.id);
+        setAvailableCommands([firstProject.direction]);
+      }
+    }
+  }, [projects, unlockedProjects, unlockProject]);
+
+  // Auto-progression logic
+  useEffect(() => {
+    if (!showTerminal) return;
+
+    const timer = setInterval(() => {
+      setIdleTimer(prev => {
+        if (prev >= 30) { // 30 seconds idle
+          handleAutoProgress();
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showTerminal, availableCommands]);
+
+  const handleAutoProgress = () => {
+    if (availableCommands.length > 0) {
+      const nextCommand = availableCommands[0];
+      addTerminalEntry(`[Auto-progression] > ${nextCommand}`);
+      handleCommand(nextCommand.toLowerCase());
+    }
+  };
+
+  const handleCommand = (command: string) => {
+    setIdleTimer(0); // Reset idle timer
+    
+    // Handle project navigation commands
+    const projectCommand = projects.find(p => 
+      p.direction.toLowerCase() === command && unlockedProjects.includes(p.id)
+    );
+    
+    if (projectCommand) {
+      setCurrentProject(projectCommand);
+      setCurrentView('project');
+      addTerminalEntry(`Exploring ${projectCommand.title}...`);
+      setAvailableCommands([]);
+      return;
+    }
+
+    // Handle special commands
+    switch (command) {
+      case 'check inventory':
+        if (getAllProjectsCompleted()) {
+          displayInventory();
+        } else {
+          addTerminalEntry('Command locked. Complete all projects first.');
+        }
+        break;
+        
+      case 'consult the scrolls':
+        if (getAllProjectsCompleted()) {
+          displayResearch();
+        } else {
+          addTerminalEntry('Command locked. Complete all projects first.');
+        }
+        break;
+        
+      case 'display beacon':
+        if (getAllProjectsCompleted()) {
+          displayContact();
+        } else {
+          addTerminalEntry('Command locked. Complete all projects first.');
+        }
+        break;
+        
+      case 'get apprenticeship':
+        if (getAllProjectsCompleted()) {
+          displayResume();
+        } else {
+          addTerminalEntry('Command locked. Complete all projects first.');
+        }
+        break;
+        
+      case 'help':
+        displayHelp();
+        break;
+        
+      case 'clear':
+        // Clear functionality would be handled by the terminal component
+        break;
+        
+      default:
+        addTerminalEntry(`Unknown command: ${command}`);
+        addTerminalEntry('Type "help" for available commands.');
+    }
+  };
+
+  const displayInventory = () => {
+    addTerminalEntry('=== INVENTORY: ACQUIRED SKILLS ===');
+    portfolioData.skills.forEach(skill => {
+      addTerminalEntry(`${skill.icon} ${skill.name} (${skill.category})`);
+    });
+  };
+
+  const displayResearch = () => {
+    addTerminalEntry('=== RESEARCH SCROLLS ===');
+    addTerminalEntry(portfolioData.research.title);
+    addTerminalEntry(portfolioData.research.description);
+    addTerminalEntry(`Project: ${portfolioData.research.project}`);
+    addTerminalEntry(`GitHub: ${portfolioData.research.githubUrl}`);
+  };
+
+  const displayContact = () => {
+    addTerminalEntry('=== BEACON SIGNAL TRANSMITTED ===');
+    addTerminalEntry(`📧 Email: ${portfolioData.contact.email}`);
+    addTerminalEntry(`🐙 GitHub: ${portfolioData.contact.github}`);
+    addTerminalEntry(`💼 LinkedIn: ${portfolioData.contact.linkedin}`);
+  };
+
+  const displayResume = () => {
+    addTerminalEntry('=== APPRENTICESHIP SCROLL ===');
+    addTerminalEntry('Resume: [Link to be added]');
+    addTerminalEntry('Opening resume in new window...');
+  };
+
+  const displayHelp = () => {
+    addTerminalEntry('=== AVAILABLE COMMANDS ===');
+    addTerminalEntry('Navigation: go north, go east, go south, go west, go northeast');
+    if (getAllProjectsCompleted()) {
+      addTerminalEntry('Special: check inventory, consult the scrolls, display beacon, get apprenticeship');
+    }
+    addTerminalEntry('Utility: help, clear');
+  };
+
+  const handleProjectSelect = (project: Project) => {
+    setCurrentProject(project);
+    setCurrentView('project');
+  };
+
+  const handleProjectComplete = () => {
+    if (currentProject) {
+      completeProject(currentProject.id);
+      addTerminalEntry(`${currentProject.title} completed!`);
+      
+      // Unlock next project
+      const nextProject = getNextAvailableProject();
+      if (nextProject) {
+        unlockProject(nextProject.id);
+        setAvailableCommands([nextProject.direction]);
+        addTerminalEntry(`New path unlocked: ${nextProject.direction}`);
+      } else if (getAllProjectsCompleted()) {
+        // All projects completed, unlock special commands
+        setAvailableCommands([
+          'check inventory',
+          'consult the scrolls', 
+          'display beacon',
+          'get apprenticeship'
+        ]);
+        addTerminalEntry('All projects completed! Special commands unlocked.');
+      }
+      
+      setCurrentView('hub');
+      setCurrentProject(null);
+    }
+  };
+
+  const handleBackToHub = () => {
+    setCurrentView('hub');
+    setCurrentProject(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      
+      <div className="relative z-10">
+        <AnimatePresence mode="wait">
+          {currentView === 'hub' && (
+            <RPGHub
+              key="hub"
+              onProjectSelect={handleProjectSelect}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+          )}
+          
+          {currentView === 'project' && currentProject && (
+            <ProjectView
+              key="project"
+              project={currentProject}
+              onBack={handleBackToHub}
+              onComplete={handleProjectComplete}
+            />
+          )}
+        </AnimatePresence>
+        
+        {/* Terminal Overlay */}
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20">
+          {!showTerminal ? (
+            <button
+              onClick={() => setShowTerminal(true)}
+              className="px-6 py-3 bg-black/50 backdrop-blur-sm border border-green-500/30 rounded-lg text-green-400 hover:bg-black/70 transition-colors"
+            >
+              Open Terminal
+            </button>
+          ) : (
+            <div className="relative">
+              <TerminalComponent
+                onCommand={handleCommand}
+                availableCommands={availableCommands}
+              />
+              <button
+                onClick={() => setShowTerminal(false)}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-sm"
+              >
+                ×
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
           </a>
         </div>
       </main>
