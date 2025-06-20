@@ -503,15 +503,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                 </p>
               </div>
             </motion.div>
-          </div>
-
-          {/* Special Commands Portal */}
+          </div>          {/* Special Commands Portal */}
           {completedProjects.length === projects.length && (
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 3, type: "spring" }}
-              className="absolute top-10 right-10"
+              className="absolute top-20 right-20"
             >
               <button
                 onClick={onCommandsView}
