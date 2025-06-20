@@ -221,13 +221,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     }
   };  const getPathPosition = (direction: string) => {
     // Fixed path positioning - cards at actual end of paths in correct directions
-    const pathLength = 180;
+    const pathLength = 200;
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'north': { x: 0, y: -pathLength, rotation: -90, pathLength }, // North = up = negative Y, rotate path upward
-      'east': { x: pathLength, y: 0, rotation: 0, pathLength },     // East = right = positive X, horizontal path
-      'south': { x: 0, y: pathLength, rotation: 90, pathLength },   // South = down = positive Y, rotate path downward  
-      'west': { x: -pathLength, y: 0, rotation: 180, pathLength },  // West = left = negative X, horizontal path flipped
-      'northeast': { x: pathLength * 0.7, y: -pathLength * 0.7, rotation: -45, pathLength } // 45 degrees up-right
+      'north': { x: 0, y: -pathLength, rotation: -90, pathLength }, // North = up = negative Y
+      'east': { x: pathLength, y: 0, rotation: 0, pathLength },     // East = right = positive X
+      'south': { x: 0, y: pathLength, rotation: 90, pathLength },   // South = down = positive Y
+      'west': { x: -pathLength, y: 0, rotation: 180, pathLength },  // West = left = negative X
+      'northeast': { x: pathLength * 0.71, y: -pathLength * 0.71, rotation: -45, pathLength } // 45 degrees up-right
     };
     return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength };
   };
@@ -409,8 +409,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                         top: '50%',
                         marginTop: '-2px'
                       }}
-                    />
-                      {/* Path Icons */}
+                    />                    {/* Path Icons */}
                     {[...Array(3)].map((_, iconIndex) => {
                       // Calculate position along the path towards the final destination
                       const progress = (iconIndex + 1) / 4; // 25%, 50%, 75% along the path
