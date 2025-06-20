@@ -212,13 +212,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     }
   };  const getPathPosition = (direction: string) => {
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'north': { x: 0, y: -180, rotation: 0, pathLength: 150 },
-      'east': { x: 180, y: 0, rotation: 90, pathLength: 150 },
-      'south': { x: 0, y: 180, rotation: 180, pathLength: 150 },
-      'west': { x: -180, y: 0, rotation: 270, pathLength: 150 },
-      'northeast': { x: 127, y: -127, rotation: 45, pathLength: 150 }
+      'north': { x: 0, y: -280, rotation: 0, pathLength: 220 },
+      'east': { x: 280, y: 0, rotation: 90, pathLength: 220 },
+      'south': { x: 0, y: 280, rotation: 180, pathLength: 220 },
+      'west': { x: -280, y: 0, rotation: 270, pathLength: 220 },
+      'northeast': { x: 200, y: -200, rotation: 45, pathLength: 220 }
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 150 };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 220 };
   };
   const getPathTheme = (direction: string) => {
     const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {

@@ -16,6 +16,7 @@ export default function HomePage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [hasStartedJourney, setHasStartedJourney] = useState(false);  const { 
     projects, 
+    completedProjects,
     completeProject, 
     unlockProject,
     getNextAvailableProject
@@ -26,26 +27,12 @@ export default function HomePage() {
   //   if (unlockedProjects.length === 0) {
   //     unlockProject('palate');
   //   }
-  // }, [unlockProject, unlockedProjects.length]);
-
-  const handleProjectSelect = (project: Project) => {
+  // }, [unlockProject, unlockedProjects.length]);  const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
     setCurrentView('project');
-  };
-
-  const handleProjectComplete = () => {
-    if (selectedProject) {
-      completeProject(selectedProject.id);
-      
-      // Auto-unlock next project
-      const nextProject = getNextAvailableProject();
-      if (nextProject) {
-        unlockProject(nextProject.id);
-      }
-      
-      // Return to hub
-      setCurrentView('hub');
-      setSelectedProject(null);
+    // Automatically mark as explored when visiting
+    if (!completedProjects.includes(project.id)) {
+      completeProject(project.id);
     }
   };
 
@@ -117,11 +104,9 @@ export default function HomePage() {
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.5 }}
             className="relative z-10"
-          >
-            <ProjectView
+          >            <ProjectView
               project={selectedProject}
               onBack={handleBackToHub}
-              onComplete={handleProjectComplete}
             />
           </motion.div>
         )}

@@ -9,10 +9,9 @@ import { useGameStore } from '@/lib/store';
 interface ProjectViewProps {
   project: Project;
   onBack: () => void;
-  onComplete: () => void;
 }
 
-export function ProjectView({ project, onBack, onComplete }: ProjectViewProps) {
+export function ProjectView({ project, onBack }: ProjectViewProps) {
   const { completedProjects } = useGameStore();
   const isCompleted = completedProjects.includes(project.id);
 
@@ -119,22 +118,18 @@ export function ProjectView({ project, onBack, onComplete }: ProjectViewProps) {
               </motion.a>
             )}
           </div>
-        </motion.div>
-
-        {/* Complete Button */}
-        {!isCompleted && (
+        </motion.div>        {/* Project Complete Status */}
+        {isCompleted && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
             className="text-center"
           >
-            <button
-              onClick={onComplete}
-              className="px-8 py-4 bg-green-600 hover:bg-green-500 rounded-lg text-white font-semibold transition-colors text-lg"
-            >
-              Mark as Explored
-            </button>
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-600/20 border border-green-500/30 rounded-lg text-green-400 font-semibold">
+              <CheckCircle size={20} />
+              Quest Completed!
+            </div>
           </motion.div>
         )}
       </div>
