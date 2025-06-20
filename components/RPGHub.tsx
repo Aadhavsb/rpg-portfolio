@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 
 interface RPGHubProps {
   onProjectSelect: (project: Project) => void;
+  onCommandsView: () => void;
 }
 
-export function RPGHub({ onProjectSelect }: RPGHubProps) {
+export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
   const { projects, unlockedProjects, completedProjects } = useGameStore();
 
   const getPathStyle = (direction: string) => {
@@ -149,9 +150,28 @@ export function RPGHub({ onProjectSelect }: RPGHubProps) {
               )}
             />
           ))}
-        </div>
-        <span>{completedProjects.length}/{projects.length}</span>
+        </div>        <span>{completedProjects.length}/{projects.length}</span>
       </motion.div>
+
+      {/* Terminal Access Button */}
+      {completedProjects.length === projects.length && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 2.5 }}
+          className="mt-8 text-center"
+        >
+          <button
+            onClick={onCommandsView}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 rounded-lg text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-500/25"
+          >
+            🎮 Access Terminal Commands
+          </button>
+          <p className="text-gray-400 text-sm mt-2">
+            All projects completed! Unlock advanced commands.
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }
