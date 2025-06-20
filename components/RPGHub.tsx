@@ -137,7 +137,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       >
         <span>Progress:</span>
         <div className="flex gap-1">
-          {projects.map((project, index) => (
+          {projects.map((project) => (
             <div
               key={project.id}
               className={cn(
