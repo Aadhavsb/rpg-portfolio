@@ -12,7 +12,7 @@ interface RPGHubProps {
 }
 
 export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
-  const { projects, unlockedProjects, completedProjects, unlockProject } = useGameStore();
+  const { projects, completedProjects, unlockProject } = useGameStore();
   const [terminalHistory, setTerminalHistory] = useState<string[]>([
     "🏰 Welcome to the Realm of Code, brave adventurer!",
     "🗡️ You stand at the crossroads of destiny...",
@@ -56,34 +56,30 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         clearTimeout(autoTimeoutId);
       }
     };
-  }, [discoveredPaths.length, autoTimeoutId, input]);
-  // Update available commands based on progress
+  }, [discoveredPaths.length, autoTimeoutId, input]);  // Update available commands based on progress
   useEffect(() => {
     const newCommands = ['help', 'look around'];
     
-    // Always show all available directional commands
-    const allDirections = ['go north', 'go east', 'go south', 'go west', 'go northeast'];
+    // Only add the NEXT available direction, not discovered ones
+    if (!discoveredPaths.includes('north')) {
+      newCommands.push('go north');
+    } else if (!discoveredPaths.includes('east')) {
+      newCommands.push('go east');
+    } else if (!discoveredPaths.includes('south')) {
+      newCommands.push('go south');
+    } else if (!discoveredPaths.includes('west')) {
+      newCommands.push('go west');
+    } else if (!discoveredPaths.includes('northeast')) {
+      newCommands.push('go northeast');
+    }
     
-    // Add discovered directions and next available direction
-    allDirections.forEach(direction => {
-      const directionKey = direction.replace('go ', '');
-      if (discoveredPaths.includes(directionKey) || 
-          (directionKey === 'north' && !discoveredPaths.includes('north')) ||
-          (directionKey === 'east' && discoveredPaths.includes('north') && !discoveredPaths.includes('east')) ||
-          (directionKey === 'south' && discoveredPaths.includes('east') && !discoveredPaths.includes('south')) ||
-          (directionKey === 'west' && discoveredPaths.includes('south') && !discoveredPaths.includes('west')) ||
-          (directionKey === 'northeast' && discoveredPaths.includes('west') && !discoveredPaths.includes('northeast'))) {
-        newCommands.push(direction);
-      }
-    });
-    
-    // Add special commands when all projects are complete
-    if (completedProjects.length === projects.length) {
+    // Add special commands when all paths are discovered
+    if (discoveredPaths.length === 5) {
       newCommands.push('check inventory', 'consult scrolls', 'display beacon', 'get apprenticeship');
     }
     
     setAvailableCommands(newCommands);
-  }, [discoveredPaths, unlockedProjects, completedProjects.length, projects.length]);
+  }, [discoveredPaths, completedProjects.length, projects.length]);
 
   const addToHistory = (message: string) => {
     setTerminalHistory(prev => [...prev, message]);
@@ -96,9 +92,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     }
     
     addToHistory(`> ${command}`);
-    const cmd = command.toLowerCase().trim();
-
-    switch (cmd) {
+    const cmd = command.toLowerCase().trim();    switch (cmd) {
       case 'go north':
         if (!discoveredPaths.includes('north')) {
           setDiscoveredPaths(prev => [...prev, 'north']);
@@ -107,7 +101,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🏗️ A mystical portal appears! You've discovered: PALATE");
           addToHistory("✨ Full-stack recipe generation magic awaits!");
         } else {
-          onProjectSelect(projects.find(p => p.id === 'palate')!);
+          addToHistory("🔄 You've already explored the northern path. Click the project card to enter!");
         }
         break;
         
@@ -119,7 +113,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🎨 A shimmering gateway manifests! You've found: EXPRESSINK");
           addToHistory("🧠 AI-powered emotion analysis from children's art!");
         } else if (discoveredPaths.includes('east')) {
-          onProjectSelect(projects.find(p => p.id === 'expressink')!);
+          addToHistory("🔄 You've already explored the eastern path. Click the project card to enter!");
         } else {
           addToHistory("🚫 The eastern path remains shrouded in mystery. Explore north first!");
         }
@@ -133,7 +127,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🏆 A grand arena portal opens! You've unlocked: PREMIER LEAGUE PREDICTOR");
           addToHistory("📊 Machine learning prophecies for football matches!");
         } else if (discoveredPaths.includes('south')) {
-          onProjectSelect(projects.find(p => p.id === 'premier-league')!);
+          addToHistory("🔄 You've already explored the southern path. Click the project card to enter!");
         } else {
           addToHistory("🚫 The southern plains are blocked. Continue your eastern journey first!");
         }
@@ -147,7 +141,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🏢 A corporate stronghold emerges! You've discovered: INVENTORY360");
           addToHistory("💼 Enterprise-grade inventory management system!");
         } else if (discoveredPaths.includes('west')) {
-          onProjectSelect(projects.find(p => p.id === 'inventory360')!);
+          addToHistory("🔄 You've already explored the western path. Click the project card to enter!");
         } else {
           addToHistory("🚫 The western mountains are impassable. Explore the south first!");
         }
@@ -161,7 +155,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🧱 A playful portal sparkles! You've found: BRICK'D");
           addToHistory("🕹️ A charming C# platformer adventure!");
         } else if (discoveredPaths.includes('northeast')) {
-          onProjectSelect(projects.find(p => p.id === 'brickd')!);
+          addToHistory("🔄 You've already explored the northeastern path. Click the project card to enter!");
         } else {
           addToHistory("🚫 The northeast passage is sealed. Complete your western quest first!");
         }
@@ -200,6 +194,14 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       default:
         addToHistory(`❓ Unknown command: "${command}"`);        addToHistory("💡 Type 'help' for available commands!");
     }
+  };  const handleQuickCommand = (command: string) => {
+    // Auto-type the command in the terminal
+    setInput(command);
+    // Give a small delay then execute
+    setTimeout(() => {
+      handleCommand(command);
+      setInput('');
+    }, 100);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -333,12 +335,11 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           {/* Command Buttons */}
           <div className="mt-4">
             <p className="text-amber-300 text-sm mb-2">Quick Commands:</p>
-            <div className="flex flex-wrap gap-2">
-              {availableCommands.map((cmd) => (
+            <div className="flex flex-wrap gap-2">              {availableCommands.map((cmd) => (
                 <motion.button
                   key={cmd}
-                  onClick={() => handleCommand(cmd)}
-                  className="px-3 py-1 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 rounded text-amber-200 text-xs transition-colors"
+                  onClick={() => handleQuickCommand(cmd)}
+                  className="px-3 py-1 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 rounded text-amber-200 text-xs transition-colors cursor-pointer"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
