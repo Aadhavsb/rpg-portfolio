@@ -6,6 +6,7 @@ interface GameStore extends GameState {
   projects: Project[];
   currentProject: Project | null;
   terminalHistory: string[];
+  discoveredPaths: string[];
   
   // Actions
   unlockProject: (projectId: string) => void;
@@ -16,6 +17,7 @@ interface GameStore extends GameState {
   resetGame: () => void;
   getNextAvailableProject: () => Project | null;
   getAllProjectsCompleted: () => boolean;
+  addDiscoveredPath: (direction: string) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -29,6 +31,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   projects: portfolioData.projects as Project[],
   currentProject: null,
   terminalHistory: ['Welcome to Aadhav\'s RPG Portfolio!', 'Type commands or click options to explore...'],
+  discoveredPaths: [],
 
   // Actions
   unlockProject: (projectId: string) => {
@@ -62,7 +65,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   clearTerminal: () => {
     set({ terminalHistory: [] });
   },
-
   resetGame: () => {
     set({
       currentStage: 'hub',
@@ -70,6 +72,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       completedProjects: [],
       availableCommands: [],
       currentProject: null,
+      discoveredPaths: [],
       projects: portfolioData.projects.map(p => ({ ...p, unlocked: false, completed: false })),
       terminalHistory: ['Welcome to Aadhav\'s RPG Portfolio!', 'Type commands or click options to explore...']
     });
@@ -79,9 +82,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     return state.projects.find(p => !state.unlockedProjects.includes(p.id)) || null;
   },
-
   getAllProjectsCompleted: () => {
     const state = get();
     return state.projects.every(p => state.completedProjects.includes(p.id));
+  },
+
+  addDiscoveredPath: (direction: string) => {
+    set((state) => ({
+      discoveredPaths: [...state.discoveredPaths, direction]
+    }));
   }
 }));

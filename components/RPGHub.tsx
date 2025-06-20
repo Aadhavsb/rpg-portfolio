@@ -12,14 +12,14 @@ interface RPGHubProps {
 }
 
 export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
-  const { projects, completedProjects, unlockProject } = useGameStore();
+  const { projects, completedProjects, unlockProject, discoveredPaths, addDiscoveredPath } = useGameStore();
   const [terminalHistory, setTerminalHistory] = useState<string[]>([
     "🏰 Welcome to the Realm of Code, brave adventurer!",
     "🗡️ You stand at the crossroads of destiny...",
     "✨ Type 'help' to see available commands, or begin your quest with 'go north'"
   ]);
   const [input, setInput] = useState('');
-  const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);  const [discoveredPaths, setDiscoveredPaths] = useState<string[]>([]);
+  const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);
   const [autoTimeoutId, setAutoTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +29,11 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);
+
+  // Log the current discovered paths for debugging
+  useEffect(() => {
+    console.log('RPGHub: Current discovered paths:', discoveredPaths);
+  }, [discoveredPaths]);
   // Auto-timeout for first command if no action taken
   useEffect(() => {
     if (discoveredPaths.length === 0 && !autoTimeoutId && input === '') {
@@ -60,16 +65,17 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
   useEffect(() => {
     const newCommands = ['help', 'look around'];
     
-    // Only add the NEXT available direction, not discovered ones
+    // Only add the NEXT available direction command that hasn't been discovered yet
+    // This ensures that once a command is used, it disappears from quick commands
     if (!discoveredPaths.includes('north')) {
       newCommands.push('go north');
-    } else if (!discoveredPaths.includes('east')) {
+    } else if (!discoveredPaths.includes('east') && discoveredPaths.includes('north')) {
       newCommands.push('go east');
-    } else if (!discoveredPaths.includes('south')) {
+    } else if (!discoveredPaths.includes('south') && discoveredPaths.includes('east')) {
       newCommands.push('go south');
-    } else if (!discoveredPaths.includes('west')) {
+    } else if (!discoveredPaths.includes('west') && discoveredPaths.includes('south')) {
       newCommands.push('go west');
-    } else if (!discoveredPaths.includes('northeast')) {
+    } else if (!discoveredPaths.includes('northeast') && discoveredPaths.includes('west')) {
       newCommands.push('go northeast');
     }
     
@@ -92,10 +98,9 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     }
     
     addToHistory(`> ${command}`);
-    const cmd = command.toLowerCase().trim();    switch (cmd) {
-      case 'go north':
+    const cmd = command.toLowerCase().trim();    switch (cmd) {      case 'go north':
         if (!discoveredPaths.includes('north')) {
-          setDiscoveredPaths(prev => [...prev, 'north']);
+          addDiscoveredPath('north');
           unlockProject('palate');
           addToHistory("🌟 You venture north through ancient cobblestone paths...");
           addToHistory("🏗️ A mystical portal appears! You've discovered: PALATE");
@@ -107,7 +112,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         
       case 'go east':
         if (discoveredPaths.includes('north') && !discoveredPaths.includes('east')) {
-          setDiscoveredPaths(prev => [...prev, 'east']);
+          addDiscoveredPath('east');
           unlockProject('expressink');
           addToHistory("🌅 You journey eastward through enchanted forests...");
           addToHistory("🎨 A shimmering gateway manifests! You've found: EXPRESSINK");
@@ -121,7 +126,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         
       case 'go south':
         if (discoveredPaths.includes('east') && !discoveredPaths.includes('south')) {
-          setDiscoveredPaths(prev => [...prev, 'south']);
+          addDiscoveredPath('south');
           unlockProject('premier-league');
           addToHistory("⚽ You trek south to the fields of competition...");
           addToHistory("🏆 A grand arena portal opens! You've unlocked: PREMIER LEAGUE PREDICTOR");
@@ -135,7 +140,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         
       case 'go west':
         if (discoveredPaths.includes('south') && !discoveredPaths.includes('west')) {
-          setDiscoveredPaths(prev => [...prev, 'west']);
+          addDiscoveredPath('west');
           unlockProject('inventory360');
           addToHistory("🌄 You venture west into professional territories...");
           addToHistory("🏢 A corporate stronghold emerges! You've discovered: INVENTORY360");
@@ -149,7 +154,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         
       case 'go northeast':
         if (discoveredPaths.includes('west') && !discoveredPaths.includes('northeast')) {
-          setDiscoveredPaths(prev => [...prev, 'northeast']);
+          addDiscoveredPath('northeast');
           unlockProject('brickd');
           addToHistory("🎮 You climb northeast to the creative peaks...");
           addToHistory("🧱 A playful portal sparkles! You've found: BRICK'D");
@@ -169,11 +174,11 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           addToHistory("🧭 Ancient runes suggest starting your journey northward...");
         }
         break;
-        
-      case 'help':
+          case 'help':
         addToHistory("🎮 ADVENTURER&apos;S COMMAND GUIDE:");
         addToHistory("🧭 Navigation: go [north/east/south/west/northeast]");
         addToHistory("👁️ Observation: look around");
+        addToHistory("🔄 Utility: reset progress");
         if (completedProjects.length === projects.length) {
           addToHistory("🎯 Special: check inventory, consult scrolls, display beacon, get apprenticeship");
         }
@@ -189,6 +194,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         } else {
           addToHistory("🔒 These advanced commands require completing all quests first!");
         }
+        break;
+          case 'reset progress':
+        addToHistory("🔄 Resetting all progress...");
+        // Reset both discovered paths and completed projects
+        const { resetGame } = useGameStore.getState();
+        resetGame();
+        addToHistory("✨ Progress reset! Ready to start a new adventure.");
         break;
         
       default:
@@ -211,14 +223,15 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       setInput('');
     }
   };  const getPathPosition = (direction: string) => {
+    // Increased distance and proper positioning at end of path
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'north': { x: 0, y: -280, rotation: 0, pathLength: 220 },
-      'east': { x: 280, y: 0, rotation: 90, pathLength: 220 },
-      'south': { x: 0, y: 280, rotation: 180, pathLength: 220 },
-      'west': { x: -280, y: 0, rotation: 270, pathLength: 220 },
-      'northeast': { x: 200, y: -200, rotation: 45, pathLength: 220 }
+      'north': { x: 0, y: -320, rotation: 0, pathLength: 260 },
+      'east': { x: 320, y: 0, rotation: 90, pathLength: 260 },
+      'south': { x: 0, y: 320, rotation: 180, pathLength: 260 },
+      'west': { x: -320, y: 0, rotation: 270, pathLength: 260 },
+      'northeast': { x: 225, y: -225, rotation: 45, pathLength: 260 }
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 220 };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 260 };
   };
   const getPathTheme = (direction: string) => {
     const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {
@@ -368,8 +381,12 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
             <AnimatePresence>
               {discoveredPaths.map((direction) => {
                 const project = projects.find(p => p.direction === `go ${direction}`);
-                if (!project) return null;
+                if (!project) {
+                  console.warn(`No project found for direction: go ${direction}`);
+                  return null;
+                }
                 
+                console.log(`Rendering path for direction: ${direction}, project: ${project.title}`);
                 const position = getPathPosition(direction);
                 const theme = getPathTheme(direction);
                 const isCompleted = completedProjects.includes(project.id);
@@ -426,8 +443,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                         </div>
                       </motion.div>
                     ))}
-                    
-                    {/* Project Card at End of Path */}
+                      {/* Project Card at End of Path */}
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ 
@@ -485,19 +501,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                   </React.Fragment>
                 );
               })}
-            </AnimatePresence>{/* Progress Indicator */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2 }}
-              className="absolute -bottom-24 left-1/2 transform -translate-x-1/2 text-center"
-            >
-              <div className="bg-black/60 backdrop-blur px-4 py-2 rounded-lg border border-amber-500/30">
-                <p className="text-amber-200 text-sm">
-                  🗺️ Paths: {discoveredPaths.length}/5 | ⚔️ Quests: {completedProjects.length}/{projects.length}
-                </p>
-              </div>
-            </motion.div>
+            </AnimatePresence>            {/* Progress Indicator - Removed to avoid overlap with shield */}
           </div>          {/* Special Commands Portal */}
           {completedProjects.length === projects.length && (
             <motion.div
