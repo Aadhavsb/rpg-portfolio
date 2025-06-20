@@ -22,18 +22,12 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
   const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);
   const [autoTimeoutId, setAutoTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
-
   // Auto-scroll terminal
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);
-
-  // Log the current discovered paths for debugging
-  useEffect(() => {
-    console.log('RPGHub: Current discovered paths:', discoveredPaths);
-  }, [discoveredPaths]);
   // Auto-timeout for first command if no action taken
   useEffect(() => {
     if (discoveredPaths.length === 0 && !autoTimeoutId && input === '') {
@@ -83,6 +77,9 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     if (discoveredPaths.length === 5) {
       newCommands.push('check inventory', 'consult scrolls', 'display beacon', 'get apprenticeship');
     }
+    
+    // Add reset command for testing
+    newCommands.push('reset progress');
     
     setAvailableCommands(newCommands);
   }, [discoveredPaths, completedProjects.length, projects.length]);
@@ -223,15 +220,16 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       setInput('');
     }
   };  const getPathPosition = (direction: string) => {
-    // Increased distance and proper positioning at end of path
+    // Fixed path positioning - cards at actual end of paths in correct directions
+    const pathLength = 180;
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'north': { x: 0, y: -320, rotation: 0, pathLength: 260 },
-      'east': { x: 320, y: 0, rotation: 90, pathLength: 260 },
-      'south': { x: 0, y: 320, rotation: 180, pathLength: 260 },
-      'west': { x: -320, y: 0, rotation: 270, pathLength: 260 },
-      'northeast': { x: 225, y: -225, rotation: 45, pathLength: 260 }
+      'north': { x: 0, y: -pathLength, rotation: -90, pathLength }, // North = up = negative Y, rotate path upward
+      'east': { x: pathLength, y: 0, rotation: 0, pathLength },     // East = right = positive X, horizontal path
+      'south': { x: 0, y: pathLength, rotation: 90, pathLength },   // South = down = positive Y, rotate path downward  
+      'west': { x: -pathLength, y: 0, rotation: 180, pathLength },  // West = left = negative X, horizontal path flipped
+      'northeast': { x: pathLength * 0.7, y: -pathLength * 0.7, rotation: -45, pathLength } // 45 degrees up-right
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 260 };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength };
   };
   const getPathTheme = (direction: string) => {
     const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {
@@ -381,19 +379,14 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
             <AnimatePresence>
               {discoveredPaths.map((direction) => {
                 const project = projects.find(p => p.direction === `go ${direction}`);
-                if (!project) {
-                  console.warn(`No project found for direction: go ${direction}`);
-                  return null;
-                }
+                if (!project) return null;
                 
-                console.log(`Rendering path for direction: ${direction}, project: ${project.title}`);
                 const position = getPathPosition(direction);
                 const theme = getPathTheme(direction);
                 const isCompleted = completedProjects.includes(project.id);
                 
                 return (
-                  <React.Fragment key={direction}>
-                    {/* Animated Path Line */}
+                  <React.Fragment key={direction}>                    {/* Animated Path Line */}
                     <motion.div
                       initial={{ scaleX: 0, opacity: 0 }}
                       animate={{ scaleX: 1, opacity: 1 }}
@@ -411,38 +404,43 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                         height: '4px',
                         background: `linear-gradient(90deg, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.4) 70%, transparent 100%)`,
                         transform: `rotate(${position.rotation}deg)`,
-                        transformOrigin: 'left center',
+                        transformOrigin: '0 center', // Start from the beginning of the line
                         left: '50%',
                         top: '50%',
-                        marginLeft: '10px',
                         marginTop: '-2px'
                       }}
                     />
-                    
-                    {/* Path Icons */}
-                    {[...Array(3)].map((_, iconIndex) => (
-                      <motion.div
-                        key={`${direction}-icon-${iconIndex}`}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 0.7 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{ 
-                          delay: 0.5 + iconIndex * 0.2,
-                          type: "spring",
-                          stiffness: 200
-                        }}
-                        className="absolute z-20"
-                        style={{
-                          left: '50%',
-                          top: '50%',
-                          transform: `translate(-50%, -50%) translate(${(iconIndex + 1) * (position.pathLength / 4) * Math.cos((position.rotation - 90) * Math.PI / 180)}px, ${(iconIndex + 1) * (position.pathLength / 4) * Math.sin((position.rotation - 90) * Math.PI / 180)}px)`
-                        }}
-                      >
-                        <div className="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-400/30 backdrop-blur-sm">
-                          <span className="text-xs">{theme.emoji}</span>
-                        </div>
-                      </motion.div>
-                    ))}
+                      {/* Path Icons */}
+                    {[...Array(3)].map((_, iconIndex) => {
+                      // Calculate position along the path towards the final destination
+                      const progress = (iconIndex + 1) / 4; // 25%, 50%, 75% along the path
+                      const iconX = position.x * progress;
+                      const iconY = position.y * progress;
+                      
+                      return (
+                        <motion.div
+                          key={`${direction}-icon-${iconIndex}`}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 0.7 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ 
+                            delay: 0.5 + iconIndex * 0.2,
+                            type: "spring",
+                            stiffness: 200
+                          }}
+                          className="absolute z-20"
+                          style={{
+                            left: '50%',
+                            top: '50%',
+                            transform: `translate(-50%, -50%) translate(${iconX}px, ${iconY}px)`
+                          }}
+                        >
+                          <div className="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-400/30 backdrop-blur-sm">
+                            <span className="text-xs">{theme.emoji}</span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                       {/* Project Card at End of Path */}
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
