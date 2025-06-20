@@ -221,8 +221,7 @@ export default function RPGHub() {
     };
     return themes[direction] || themes['north'];
   };
-
-  const onProjectSelect = (project: any) => {
+  const onProjectSelect = (project: { id: string; title: string; direction: string }) => {
     addToHistory(`🚀 Opening ${project.title}...`);
   };
 
@@ -248,9 +247,8 @@ export default function RPGHub() {
         {/* Left Panel - Terminal */}
         <div className="w-1/2 p-6 flex flex-col animate-fade-in">
           {/* Title */}
-          <div className="text-center mb-6">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400 bg-clip-text text-transparent mb-2">
-              ⚔️ Aadhav's Quest ⚔️
+          <div className="text-center mb-6">            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400 bg-clip-text text-transparent mb-2">
+              ⚔️ Aadhav&apos;s Quest ⚔️
             </h1>
             <p className="text-amber-200 text-lg">Code Adventurer & AI Researcher</p>
           </div>
@@ -264,7 +262,7 @@ export default function RPGHub() {
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
-              <span className="text-amber-300 text-sm font-mono ml-2">⚔️ Adventurer's Terminal ⚔️</span>
+              <span className="text-amber-300 text-sm font-mono ml-2">⚔️ Adventurer&apos;s Terminal ⚔️</span>
             </div>
 
             {/* Terminal Content */}

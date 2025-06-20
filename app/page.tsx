@@ -14,21 +14,9 @@ export default function HomePage() {
   // Start with terminal view (only terminal visible at first)
   const [currentView, setCurrentView] = useState<ViewState>('terminal');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [hasStartedJourney, setHasStartedJourney] = useState(false);
-  const { 
-    projects, 
-    completedProjects,
-    completeProject
+  const [hasStartedJourney, setHasStartedJourney] = useState(false);  const { 
+    projects
   } = useGameStore();
-
-  const handleProjectSelect = (project: Project) => {
-    setSelectedProject(project);
-    setCurrentView('project');
-    // Automatically mark as explored when visiting
-    if (!completedProjects.includes(project.id)) {
-      completeProject(project.id);
-    }
-  };
 
   const handleBackToHub = () => {
     setCurrentView('hub');
