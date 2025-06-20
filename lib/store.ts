@@ -30,7 +30,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   idleTimer: 0,
   projects: portfolioData.projects as Project[],
   currentProject: null,
-  terminalHistory: ['Welcome to Aadhav\'s RPG Portfolio!', 'Type commands or click options to explore...'],
+  terminalHistory: [
+    'Welcome to Aadhav\'s RPG Portfolio!', 
+    'TIER 1: Explore all 5 directions to unlock advanced features.',
+    'Type "help" for available commands or click paths to begin your quest...'
+  ],
   discoveredPaths: [],
 
   // Actions
@@ -74,7 +78,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       currentProject: null,
       discoveredPaths: [],
       projects: portfolioData.projects.map(p => ({ ...p, unlocked: false, completed: false })),
-      terminalHistory: ['Welcome to Aadhav\'s RPG Portfolio!', 'Type commands or click options to explore...']
+      terminalHistory: [
+        'Welcome to Aadhav\'s RPG Portfolio!', 
+        'TIER 1: Explore all 5 directions to unlock advanced features.',
+        'Type "help" for available commands or click paths to begin your quest...'
+      ]
     });
   },
 

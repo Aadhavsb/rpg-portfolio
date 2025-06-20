@@ -1,486 +1,723 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Sword, Shield, Compass, Scroll, TreePine, Castle, Send, Sparkles } from 'lucide-react';
+'use client';
 
-// Mock store for demo
-const mockStore = {
-  projects: [
-    { id: 'palate', title: 'PALATE', direction: 'go north' },
-    { id: 'expressink', title: 'EXPRESSINK', direction: 'go east' },
-    { id: 'premier-league', title: 'PREMIER LEAGUE', direction: 'go south' },
-    { id: 'inventory360', title: 'INVENTORY360', direction: 'go west' },
-    { id: 'brickd', title: 'BRICK\'D', direction: 'go northeast' }
-  ],
-  completedProjects: [],
-  discoveredPaths: [],
-  unlockProject: () => {},
-  addDiscoveredPath: () => {},
-  resetGame: () => {}
-};
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useGameStore } from '@/lib/store';
+import { Project } from '@/lib/types';
+import { TerminalSimple } from './TerminalSimple';
+import { ProjectView } from './ProjectView';
+import { Mail, FileText, Brain, Zap, Code, Database, Palette } from 'lucide-react';
 
-export default function RPGHub() {
-  const [projects] = useState(mockStore.projects);
-  const [completedProjects, setCompletedProjects] = useState<string[]>(mockStore.completedProjects);
-  const [discoveredPaths, setDiscoveredPaths] = useState<string[]>([]);
-  
-  const [terminalHistory, setTerminalHistory] = useState<string[]>([
-    "🏰 Welcome to the Realm of Code, brave adventurer!",
-    "🗡️ You stand at the crossroads of destiny...",
-    "✨ Type 'help' to see available commands, or begin your quest with 'go north'"
-  ]);
-  const [input, setInput] = useState('');
-  const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);
-  const [autoTimeoutId, setAutoTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
+type ViewState = 'hub' | 'project' | 'section';
+type SectionType = 'skills' | 'research' | 'contact' | 'resume';
 
-  // Auto-scroll terminal
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
-  }, [terminalHistory]);
+export function RPGHub() {
+  const {
+    projects,
+    terminalHistory,
+    addTerminalEntry,
+    unlockProject,
+    completeProject,
+    unlockedProjects,
+    completedProjects
+  } = useGameStore();
 
-  // Update available commands based on progress
-  useEffect(() => {
-    const newCommands = ['help', 'look around'];
-    
-    if (!discoveredPaths.includes('north')) {
-      newCommands.push('go north');
-    } else if (!discoveredPaths.includes('east') && discoveredPaths.includes('north')) {
-      newCommands.push('go east');
-    } else if (!discoveredPaths.includes('south') && discoveredPaths.includes('east')) {
-      newCommands.push('go south');
-    } else if (!discoveredPaths.includes('west') && discoveredPaths.includes('south')) {
-      newCommands.push('go west');
-    } else if (!discoveredPaths.includes('northeast') && discoveredPaths.includes('west')) {
-      newCommands.push('go northeast');
-    }
-    
-    if (discoveredPaths.length === 5) {
-      newCommands.push('check inventory', 'consult scrolls', 'display beacon', 'get apprenticeship');
-    }
-    
-    newCommands.push('reset progress');
-    setAvailableCommands(newCommands);
-  }, [discoveredPaths, completedProjects.length, projects.length]);
-  const addToHistory = (message: string) => {
-    setTerminalHistory(prev => [...prev, message]);
+  const [currentView, setCurrentView] = useState<ViewState>('hub');
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [currentSection, setCurrentSection] = useState<SectionType | null>(null);
+  const [skillsUnlocked, setSkillsUnlocked] = useState(false);
+  const [researchUnlocked, setResearchUnlocked] = useState(false);
+  const [contactUnlocked, setContactUnlocked] = useState(false);
+  const [resumeUnlocked, setResumeUnlocked] = useState(false);
+  const [animatingPath, setAnimatingPath] = useState<string | null>(null);
+
+  // Project icon mapping
+  const projectIcons = {
+    'palate': Palette,
+    'expressink': Brain,
+    'premier-league': Zap,
+    'inventory360': Database,
+    'brickd': Code
+  };
+  // Command mappings with automatic path discovery
+  const commandMap: { [key: string]: () => void } = {
+    'help': () => {
+      const allDirectionalProjectsCompleted = projects.every(project => 
+        completedProjects.includes(project.id)
+      );
+      
+      if (!allDirectionalProjectsCompleted) {
+        addTerminalEntry('TIER 1 - Explore all directions: go north, go east, go south, go west, go northeast');
+      } else {
+        addTerminalEntry('TIER 2 - Advanced commands: check inventory, consult the scrolls, display beacon, get apprenticeship');
+      }
+    },
+    'go north': () => handleProjectNavigation('go north'),
+    'go east': () => handleProjectNavigation('go east'),
+    'go south': () => handleProjectNavigation('go south'),
+    'go west': () => handleProjectNavigation('go west'),
+    'go northeast': () => handleProjectNavigation('go northeast'),
+    'check inventory': () => handleSectionUnlock('skills'),
+    'consult the scrolls': () => handleSectionUnlock('research'),
+    'display beacon': () => handleSectionUnlock('contact'),
+    'get apprenticeship': () => handleSectionUnlock('resume')
   };
 
-  const unlockProject = (projectId: string) => {
-    console.log(`Unlocking project: ${projectId}`);
-  };
-
-  const addDiscoveredPath = (direction: string) => {
-    setDiscoveredPaths(prev => [...prev, direction]);
-  };
-
-  const handleCommand = (command: string) => {
-    if (autoTimeoutId) {
-      clearTimeout(autoTimeoutId);
-      setAutoTimeoutId(null);
+  const handleProjectNavigation = (direction: string) => {
+    const project = projects.find(p => p.direction === direction);
+    if (!project) {
+      addTerminalEntry(`No project found in that direction.`);
+      return;
     }
+
+    // Auto-unlock project when navigating
+    if (!unlockedProjects.includes(project.id)) {
+      unlockProject(project.id);
+    }
+
+    // Animate path
+    setAnimatingPath(direction);
+    addTerminalEntry(`Activating path ${direction.replace('go ', '')}...`);
     
-    addToHistory(`> ${command}`);
-    const cmd = command.toLowerCase().trim();
-
-    switch (cmd) {
-      case 'go north':
-        if (!discoveredPaths.includes('north')) {
-          addDiscoveredPath('north');
-          unlockProject('palate');
-          addToHistory("🌟 You venture north through ancient cobblestone paths...");
-          addToHistory("🏗️ A mystical portal appears! You've discovered: PALATE");
-          addToHistory("✨ Full-stack recipe generation magic awaits!");
-        } else {
-          addToHistory("🔄 You've already explored the northern path. Click the project card to enter!");
-        }
-        break;
-        
-      case 'go east':
-        if (discoveredPaths.includes('north') && !discoveredPaths.includes('east')) {
-          addDiscoveredPath('east');
-          unlockProject('expressink');
-          addToHistory("🌅 You journey eastward through enchanted forests...");
-          addToHistory("🎨 A shimmering gateway manifests! You've found: EXPRESSINK");
-          addToHistory("🧠 AI-powered emotion analysis from children's art!");
-        } else if (discoveredPaths.includes('east')) {
-          addToHistory("🔄 You've already explored the eastern path. Click the project card to enter!");
-        } else {
-          addToHistory("🚫 The eastern path remains shrouded in mystery. Explore north first!");
-        }
-        break;
-        
-      case 'go south':
-        if (discoveredPaths.includes('east') && !discoveredPaths.includes('south')) {
-          addDiscoveredPath('south');
-          unlockProject('premier-league');
-          addToHistory("⚽ You trek south to the fields of competition...");
-          addToHistory("🏆 A grand arena portal opens! You've unlocked: PREMIER LEAGUE PREDICTOR");
-          addToHistory("📊 Machine learning prophecies for football matches!");
-        } else if (discoveredPaths.includes('south')) {
-          addToHistory("🔄 You've already explored the southern path. Click the project card to enter!");
-        } else {
-          addToHistory("🚫 The southern plains are blocked. Continue your eastern journey first!");
-        }
-        break;
-        
-      case 'go west':
-        if (discoveredPaths.includes('south') && !discoveredPaths.includes('west')) {
-          addDiscoveredPath('west');
-          unlockProject('inventory360');
-          addToHistory("🌄 You venture west into professional territories...");
-          addToHistory("🏢 A corporate stronghold emerges! You've discovered: INVENTORY360");
-          addToHistory("💼 Enterprise-grade inventory management system!");
-        } else if (discoveredPaths.includes('west')) {
-          addToHistory("🔄 You've already explored the western path. Click the project card to enter!");
-        } else {
-          addToHistory("🚫 The western mountains are impassable. Explore the south first!");
-        }
-        break;
-        
-      case 'go northeast':
-        if (discoveredPaths.includes('west') && !discoveredPaths.includes('northeast')) {
-          addDiscoveredPath('northeast');
-          unlockProject('brickd');
-          addToHistory("🎮 You climb northeast to the creative peaks...");
-          addToHistory("🧱 A playful portal sparkles! You've found: BRICK'D");
-          addToHistory("🕹️ A charming C# platformer adventure!");
-        } else if (discoveredPaths.includes('northeast')) {
-          addToHistory("🔄 You've already explored the northeastern path. Click the project card to enter!");
-        } else {
-          addToHistory("🚫 The northeast passage is sealed. Complete your western quest first!");
-        }
-        break;
-        
-      case 'look around':
-        addToHistory("🏰 You stand in a mystical coding realm...");
-        addToHistory(`📍 Paths discovered: ${discoveredPaths.length}/5`);
-        addToHistory(`⚔️ Quests completed: ${completedProjects.length}/${projects.length}`);
-        if (discoveredPaths.length === 0) {
-          addToHistory("🧭 Ancient runes suggest starting your journey northward...");
-        }
-        break;
-          
-      case 'help':
-        addToHistory("🎮 ADVENTURER'S COMMAND GUIDE:");
-        addToHistory("🧭 Navigation: go [north/east/south/west/northeast]");
-        addToHistory("👁️ Observation: look around");
-        addToHistory("🔄 Utility: reset progress");
-        if (completedProjects.length === projects.length) {
-          addToHistory("🎯 Special: check inventory, consult scrolls, display beacon, get apprenticeship");
-        }
-        addToHistory("💡 Click the glowing command buttons below for quick access!");
-        break;
-        
-      case 'check inventory':
-      case 'consult scrolls':
-      case 'display beacon':
-      case 'get apprenticeship':
-        if (completedProjects.length === projects.length) {
-          addToHistory("🎯 Advanced commands activated! (Mock implementation)");
-        } else {
-          addToHistory("🔒 These advanced commands require completing all quests first!");
-        }
-        break;
-          
-      case 'reset progress':
-        addToHistory("🔄 Resetting all progress...");
-        setDiscoveredPaths([]);
-        setCompletedProjects([]);
-        addToHistory("✨ Progress reset! Ready to start a new adventure.");
-        break;
-        
-      default:
-        addToHistory(`❓ Unknown command: "${command}"`);
-        addToHistory("💡 Type 'help' for available commands!");
-    }
-  };
-  const handleQuickCommand = (command: string) => {
-    setInput(command);
+    // Show project after animation
     setTimeout(() => {
-      handleCommand(command);
-      setInput('');
-    }, 100);
+      setCurrentProject(project);
+      setCurrentView('project');
+      setAnimatingPath(null);
+    }, 1000);
+  };
+  const handleSectionUnlock = (section: SectionType) => {
+    // Check if Tier 1 (all directional projects) is completed
+    const allDirectionalProjectsCompleted = projects.every(project => 
+      completedProjects.includes(project.id)
+    );
+
+    if (!allDirectionalProjectsCompleted) {
+      addTerminalEntry('Quest requirements not met. Complete all directional paths first (go north, east, south, west, northeast).');
+      return;
+    }
+
+    const requiredProjects = getRequiredProjectsForSection();
+    const hasRequiredProjects = requiredProjects.every(id => completedProjects.includes(id));
+
+    if (!hasRequiredProjects) {
+      const missing = requiredProjects.filter(id => !completedProjects.includes(id));
+      const missingTitles = missing.map(id => projects.find(p => p.id === id)?.title).join(', ');
+      addTerminalEntry(`Quest requirements not met. Complete: ${missingTitles}`);
+      return;
+    }
+
+    // Sequential unlocking for Tier 2 commands
+    const sectionOrder: SectionType[] = ['skills', 'research', 'contact', 'resume'];
+    const currentIndex = sectionOrder.indexOf(section);
+    
+    // Check if previous sections are unlocked
+    for (let i = 0; i < currentIndex; i++) {
+      const prevSection = sectionOrder[i];
+      const isUnlocked = {
+        skills: skillsUnlocked,
+        research: researchUnlocked,
+        contact: contactUnlocked,
+        resume: resumeUnlocked
+      }[prevSection];
+      
+      if (!isUnlocked) {
+        const prevCommand = {
+          skills: 'check inventory',
+          research: 'consult the scrolls',
+          contact: 'display beacon',
+          resume: 'get apprenticeship'
+        }[prevSection];
+        addTerminalEntry(`You must unlock the previous section first. Type: ${prevCommand}`);
+        return;
+      }
+    }
+
+    // Unlock and show the section
+    switch (section) {
+      case 'skills':
+        setSkillsUnlocked(true);
+        addTerminalEntry('Inventory accessed! Opening skills matrix...');
+        break;
+      case 'research':
+        setResearchUnlocked(true);
+        addTerminalEntry('Ancient scrolls revealed! Accessing research archives...');
+        break;
+      case 'contact':
+        setContactUnlocked(true);
+        addTerminalEntry('Beacon activated! Contact channels established...');
+        break;
+      case 'resume':
+        setResumeUnlocked(true);
+        addTerminalEntry('Apprenticeship documents materialized!');
+        break;
+    }
+
+    setCurrentSection(section);
+    setCurrentView('section');
+  };  const getRequiredProjectsForSection = (): string[] => {
+    // For Tier 2, only require that all directional projects are completed
+    // Individual sections don't need specific project completion, just sequential unlock
+    return projects.map(p => p.id); // All directional projects
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim()) {
-      handleCommand(input.trim());
-      setInput('');
+  const handleCommand = (cmd: string) => {
+    addTerminalEntry(`> ${cmd}`);
+    
+    const normalizedCmd = cmd.toLowerCase().trim();
+    const handler = commandMap[normalizedCmd];
+    
+    if (handler) {
+      handler();
+    } else {
+      addTerminalEntry(`Unknown command: ${cmd}. Type 'help' for available commands.`);
     }
   };
 
-  const getPathTheme = (direction: string) => {
-    const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {
-      'north': { bg: 'from-blue-600/30 to-cyan-500/30', border: 'border-blue-400/50', icon: Compass, emoji: '🧭' },
-      'east': { bg: 'from-green-600/30 to-emerald-500/30', border: 'border-green-400/50', icon: TreePine, emoji: '🌲' },
-      'south': { bg: 'from-red-600/30 to-orange-500/30', border: 'border-red-400/50', icon: Sword, emoji: '⚔️' },
-      'west': { bg: 'from-yellow-600/30 to-amber-500/30', border: 'border-yellow-400/50', icon: Castle, emoji: '🏰' },
-      'northeast': { bg: 'from-purple-600/30 to-pink-500/30', border: 'border-purple-400/50', icon: Sparkles, emoji: '✨' }
+  const handleProjectIconClick = (direction: string) => {
+    handleProjectNavigation(direction);
+  };
+
+  const handleSectionCardClick = (section: SectionType) => {
+    const isUnlocked = {
+      skills: skillsUnlocked,
+      research: researchUnlocked,
+      contact: contactUnlocked,
+      resume: resumeUnlocked
+    }[section];
+
+    if (isUnlocked) {
+      setCurrentSection(section);
+      setCurrentView('section');
+    }
+  };
+  // Project view
+  if (currentView === 'project' && currentProject) {
+    return (
+      <ProjectView 
+        project={currentProject} 
+        onBack={() => {
+          // Mark project as completed when returning from project view
+          if (!completedProjects.includes(currentProject.id)) {
+            completeProject(currentProject.id);
+            addTerminalEntry(`Project completed: ${currentProject.title}`);
+            
+            // Check if this completes Tier 1
+            const newCompletedCount = completedProjects.length + 1;
+            if (newCompletedCount === projects.length) {
+              setTimeout(() => {
+                addTerminalEntry('🎉 TIER 1 COMPLETED! All directional paths explored!');
+                addTerminalEntry('🔓 TIER 2 UNLOCKED! Advanced commands are now available.');
+                addTerminalEntry('Type "help" to see your new options.');
+              }, 500);
+            }
+          }
+          setCurrentProject(null);
+          setCurrentView('hub');
+        }}
+      />
+    );
+  }
+
+  // Section view
+  if (currentView === 'section' && currentSection) {
+    return (
+      <SectionView 
+        section={currentSection}
+        onBack={() => {
+          setCurrentSection(null);
+          setCurrentView('hub');
+        }}
+      />
+    );
+  }  // Main hub view
+  return (
+    <div className="h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)]" style={{backgroundSize: '50px 50px'}}></div>
+      
+      <div className="container mx-auto p-4 h-full flex flex-col relative z-10">
+        {/* Header - Compact */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-4"
+        >
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2 tracking-tight">
+            Aadhav&apos;s Portfolio
+          </h1>
+          <p className="text-sm text-slate-400">Interactive Developer Experience</p>
+        </motion.div>        {/* Main Grid - Flex layout for better screen utilization */}
+        <div className="flex-1 flex gap-4 min-h-0">
+          {/* Left - Terminal */}
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-80 flex-shrink-0"
+          >
+            <div className="h-full bg-slate-900/40 backdrop-blur-md border border-slate-700/50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-3 text-cyan-400 flex items-center">
+                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2"></span>
+                Terminal
+              </h3>
+              <TerminalSimple 
+                history={terminalHistory}
+                onCommand={handleCommand}
+              />
+            </div>
+          </motion.div>
+
+          {/* Center - Project Hub */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex-1 flex flex-col min-h-0"
+          >
+            <div className="flex-1 bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-6 flex flex-col">
+              <h3 className="text-xl font-semibold mb-4 text-center text-slate-200 flex items-center justify-center">
+                <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                Project Hub
+                <span className="w-2 h-2 bg-blue-400 rounded-full ml-2"></span>
+              </h3>
+              
+              {/* Project Grid with Path Animations */}
+              <div className="relative grid grid-cols-5 grid-rows-5 gap-2 max-w-2xl mx-auto flex-1 place-items-center">
+                {/* Animated Paths */}
+                <AnimatePresence>
+                  {animatingPath && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 pointer-events-none"
+                    >
+                      <PathAnimation direction={animatingPath} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {/* Animated Paths */}
+                <AnimatePresence>
+                  {animatingPath && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 pointer-events-none"
+                    >
+                      <PathAnimation direction={animatingPath} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>                {/* Project Icons in Grid */}
+                {/* Row 1 */}
+                <div></div>
+                <div></div>
+                <ProjectIcon 
+                  project={projects.find(p => p.direction === 'go north')} 
+                  direction="go north" 
+                  onClick={handleProjectIconClick}
+                  unlockedProjects={unlockedProjects}
+                  completedProjects={completedProjects}
+                  projectIcons={projectIcons}
+                />
+                <div></div>
+                <ProjectIcon 
+                  project={projects.find(p => p.direction === 'go northeast')} 
+                  direction="go northeast" 
+                  onClick={handleProjectIconClick}
+                  unlockedProjects={unlockedProjects}
+                  completedProjects={completedProjects}
+                  projectIcons={projectIcons}
+                />
+
+                {/* Row 2 */}
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                {/* Row 3 - Center row with HUB */}
+                <div></div>
+                <ProjectIcon 
+                  project={projects.find(p => p.direction === 'go west')} 
+                  direction="go west" 
+                  onClick={handleProjectIconClick}
+                  unlockedProjects={unlockedProjects}
+                  completedProjects={completedProjects}
+                  projectIcons={projectIcons}
+                />
+                <motion.div 
+                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 rounded-full h-12 w-12 border border-slate-600 shadow-lg"
+                  whileHover={{ scale: 1.1 }}
+                >
+                  <span className="text-xs font-semibold text-slate-300">HUB</span>
+                </motion.div>
+                <ProjectIcon 
+                  project={projects.find(p => p.direction === 'go east')} 
+                  direction="go east" 
+                  onClick={handleProjectIconClick}
+                  unlockedProjects={unlockedProjects}
+                  completedProjects={completedProjects}
+                  projectIcons={projectIcons}
+                />
+                <div></div>
+
+                {/* Row 4 */}
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                {/* Row 5 */}
+                <div></div>
+                <div></div>
+                <ProjectIcon 
+                  project={projects.find(p => p.direction === 'go south')} 
+                  direction="go south" 
+                  onClick={handleProjectIconClick}
+                  unlockedProjects={unlockedProjects}
+                  completedProjects={completedProjects}
+                  projectIcons={projectIcons}
+                />
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </motion.div>
+        </div>        {/* Bottom - Section Cards - Compact Row */}
+        {(skillsUnlocked || researchUnlocked || contactUnlocked || resumeUnlocked) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 flex gap-3 justify-center"
+          >
+            {skillsUnlocked && (
+              <SectionCard 
+                title="Skills"
+                icon={Code}
+                unlocked={skillsUnlocked}
+                command="check inventory"
+                onClick={() => handleSectionCardClick('skills')}
+              />
+            )}
+            {researchUnlocked && (
+              <SectionCard 
+                title="Research"
+                icon={Brain}
+                unlocked={researchUnlocked}
+                command="consult the scrolls"
+                onClick={() => handleSectionCardClick('research')}
+              />
+            )}
+            {contactUnlocked && (
+              <SectionCard 
+                title="Contact"
+                icon={Mail}
+                unlocked={contactUnlocked}
+                command="display beacon"
+                onClick={() => handleSectionCardClick('contact')}
+              />
+            )}
+            {resumeUnlocked && (
+              <SectionCard 
+                title="Resume"
+                icon={FileText}
+                unlocked={resumeUnlocked}
+                command="get apprenticeship"
+                onClick={() => handleSectionCardClick('resume')}
+              />
+            )}
+          </motion.div>
+        )}
+
+        {/* Progress Bar - Minimal */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-4 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-slate-300 text-sm">Progress</span>
+            <span className="text-cyan-400 text-sm font-medium">{completedProjects.length}/{projects.length}</span>
+          </div>
+          <div className="w-full bg-slate-800 rounded-full h-2">
+            <motion.div 
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(completedProjects.length / projects.length) * 100}%` }}
+              transition={{ duration: 1, delay: 0.5 }}
+            />
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// Project Icon Component
+function ProjectIcon({ 
+  project, 
+  direction, 
+  onClick, 
+  unlockedProjects, 
+  completedProjects, 
+  projectIcons 
+}: { 
+  project: Project | undefined; 
+  direction: string; 
+  onClick: (direction: string) => void;
+  unlockedProjects: string[];
+  completedProjects: string[];
+  projectIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>>;
+}) {
+    if (!project) return <div className="h-10 w-10"></div>;
+
+    const isUnlocked = unlockedProjects.includes(project.id);
+    const isCompleted = completedProjects.includes(project.id);
+    const IconComponent = projectIcons[project.id as keyof typeof projectIcons] || Code;
+
+    // Determine position for label based on direction
+    const getLayoutClasses = () => {
+      switch (direction) {
+        case 'go north':
+          return 'flex-col items-center';
+        case 'go south':
+          return 'flex-col-reverse items-center';
+        case 'go east':
+          return 'flex-row items-center';
+        case 'go west':
+          return 'flex-row-reverse items-center';
+        case 'go northeast':
+          return 'flex-col items-center';
+        default:
+          return 'flex-col items-center';
+      }
     };
-    return themes[direction] || themes['north'];
+
+    return (
+      <div className={`flex ${getLayoutClasses()} gap-2`}>
+        <motion.div
+          className={`
+            relative h-10 w-10 rounded-lg cursor-pointer
+            flex items-center justify-center transition-all duration-200
+            ${isCompleted 
+              ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/25' 
+              : isUnlocked 
+              ? 'bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/25' 
+              : 'bg-gradient-to-br from-slate-600 to-slate-700 hover:from-slate-500 hover:to-slate-600'
+            }
+          `}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onClick(direction)}
+        >
+          <IconComponent 
+            size={18} 
+            className={isCompleted ? 'text-green-100' : isUnlocked ? 'text-blue-100' : 'text-slate-300'} 
+          />
+          {isCompleted && (
+            <motion.div
+              className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full flex items-center justify-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+            >
+              <span className="text-green-900 text-xs font-bold">✓</span>
+            </motion.div>
+          )}
+        </motion.div>
+        
+        {/* Project Name Label */}
+        <motion.div
+          className={`
+            px-2 py-1 rounded text-xs font-medium max-w-20 text-center
+            ${isCompleted 
+              ? 'bg-green-900/60 text-green-300' 
+              : isUnlocked 
+              ? 'bg-blue-900/60 text-blue-300' 
+              : 'bg-slate-800/60 text-slate-400'
+            }
+          `}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          {project.title}
+        </motion.div>
+      </div>
+    );
+  }
+
+// Section Card Component
+function SectionCard({ title, icon: Icon, unlocked, command, onClick }: {
+  title: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  unlocked: boolean;
+  command: string;
+  onClick: () => void;
+}) {
+    return (
+      <motion.div
+        className={`
+          relative px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-3
+          ${unlocked 
+            ? 'bg-slate-800/60 border border-cyan-500/50 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30' 
+            : 'bg-slate-900/60 border border-slate-600/50 hover:border-slate-500'
+          }
+        `}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+      >
+        <Icon 
+          size={16} 
+          className={unlocked ? 'text-cyan-400' : 'text-slate-500'} 
+        />
+        <span className={`text-sm font-medium ${unlocked ? 'text-slate-200' : 'text-slate-400'}`}>
+          {title}
+        </span>
+        {unlocked && (
+          <motion.div
+            className="w-2 h-2 bg-cyan-400 rounded-full"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+          />
+        )}
+      </motion.div>
+    );
+  }
+
+// Path Animation Component
+function PathAnimation({ direction }: { direction: string }) {
+  const pathVariants = {
+    'go north': { x: 0, y: -100 },
+    'go east': { x: 100, y: 0 },
+    'go south': { x: 0, y: 100 },
+    'go west': { x: -100, y: 0 },
+    'go northeast': { x: 100, y: -100 }
   };
-  const onProjectSelect = (project: { id: string; title: string; direction: string }) => {
-    addToHistory(`🚀 Opening ${project.title}...`);
-  };
+
+  const movement = pathVariants[direction as keyof typeof pathVariants] || { x: 0, y: 0 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-stone-900 to-amber-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-20">
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-amber-400 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${Math.random() * 3 + 2}s`
-            }}
-          />
-        ))}
-      </div>
+    <motion.div
+      className="absolute top-1/2 left-1/2 w-2 h-2 bg-cyan-400 rounded-full"
+      initial={{ x: -4, y: -4, opacity: 0 }}
+      animate={{ 
+        x: movement.x - 4, 
+        y: movement.y - 4, 
+        opacity: [0, 1, 1, 0] 
+      }}
+      transition={{ duration: 1, ease: "easeInOut" }}
+    />
+  );
+}
 
-      <div className="flex h-screen">
-        {/* Left Panel - Terminal */}
-        <div className="w-1/2 p-6 flex flex-col animate-fade-in">
-          {/* Title */}
-          <div className="text-center mb-6">            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400 bg-clip-text text-transparent mb-2">
-              ⚔️ Aadhav&apos;s Quest ⚔️
-            </h1>
-            <p className="text-amber-200 text-lg">Code Adventurer & AI Researcher</p>
+// Section View Component
+function SectionView({ section, onBack }: { section: string; onBack: () => void }) {
+  const sectionData = {
+    skills: {
+      title: 'Skills Inventory',
+      icon: Code,
+      content: {
+        'Programming Languages': ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#'],
+        'Web Technologies': ['React', 'Next.js', 'Node.js', 'Express', 'Tailwind CSS', 'HTML/CSS'],
+        'Backend & Cloud': ['MongoDB', 'PostgreSQL', 'Docker', 'Git', 'AWS'],
+        'AI/ML': ['TensorFlow', 'Scikit-learn', 'Pandas', 'OpenAI API', 'Computer Vision']
+      }
+    },
+    research: {
+      title: 'Research Archives',
+      icon: Brain,
+      content: {
+        'Project': 'chunkedDecomp',
+        'Focus': 'Token-wise transformer KV Cache compression using SVD',
+        'Method': 'Dynamic-rank token compression with chunked fusion to minimize memory during inference',
+        'Deployment': 'Dockerized + GPU on HPC',
+        'Repository': 'github.com/Aadhavsb/chunkedDecomp'
+      }
+    },
+    contact: {
+      title: 'Contact Beacon',
+      icon: Mail,
+      content: {
+        'Email': 'bharadwajaadhav@gmail.com',
+        'GitHub': 'github.com/Aadhavsb',
+        'LinkedIn': 'linkedin.com/in/aadhav-bharadwaj'
+      }
+    },
+    resume: {
+      title: 'Apprenticeship Documents',
+      icon: FileText,
+      content: {
+        'Education': 'Computer Science',
+        'Experience': 'Full Stack Development',
+        'Research': 'Machine Learning & AI',
+        'Download': 'Resume.pdf [Available Soon]'
+      }
+    }
+  };
+
+  const data = sectionData[section as keyof typeof sectionData];
+  const Icon = data.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 text-white p-8"
+    >
+      <div className="max-w-4xl mx-auto">
+        <motion.button
+          className="mb-8 px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:border-slate-500 transition-colors"
+          onClick={onBack}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          ← Back to Hub
+        </motion.button>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8"
+        >
+          <div className="flex items-center mb-8">
+            <Icon size={32} className="text-cyan-400" />
+            <h1 className="text-3xl font-bold ml-4">{data.title}</h1>
           </div>
 
-          {/* Terminal Window */}
-          <div className="flex-1 bg-black/80 backdrop-blur border-2 border-amber-500/30 rounded-lg overflow-hidden shadow-2xl shadow-amber-500/20">
-            {/* Terminal Header */}
-            <div className="bg-gradient-to-r from-amber-600/20 to-yellow-600/20 px-4 py-2 border-b border-amber-500/30 flex items-center gap-2">
-              <div className="flex gap-1">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              </div>
-              <span className="text-amber-300 text-sm font-mono ml-2">⚔️ Adventurer&apos;s Terminal ⚔️</span>
-            </div>
-
-            {/* Terminal Content */}
-            <div
-              ref={terminalRef}
-              className="h-64 overflow-y-auto p-4 font-mono text-sm space-y-1"
-            >
-              {terminalHistory.map((line, index) => (
-                <div
-                  key={index}
-                  className="text-amber-200 animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {line}
-                </div>
-              ))}
-            </div>
-
-            {/* Terminal Input */}
-            <div className="border-t border-amber-500/30 p-4">
-              <div className="flex gap-2">
-                <span className="text-amber-400 font-mono">$</span>
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSubmit(e);
-                    }
-                  }}
-                  className="flex-1 bg-transparent text-amber-200 font-mono outline-none placeholder-amber-600"
-                  placeholder="Enter your command..."
-                />
-                <button
-                  onClick={handleSubmit}
-                  className="text-amber-400 hover:text-amber-300 transition-colors"
-                >
-                  <Send size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Command Buttons */}
-          <div className="mt-4">
-            <p className="text-amber-300 text-sm mb-2">Quick Commands:</p>
-            <div className="flex flex-wrap gap-2">
-              {availableCommands.map((cmd) => (
-                <button
-                  key={cmd}
-                  onClick={() => handleQuickCommand(cmd)}
-                  className="px-3 py-1 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 rounded text-amber-200 text-xs transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  {cmd}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Panel - Map/World */}
-        <div className="w-1/2 p-6 flex items-center justify-center relative">
-          {/* Map Container - Fixed size with center point */}
-          <div className="relative w-96 h-96">
-            {/* Hero Avatar - Absolute center */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl shadow-amber-500/50 border-4 border-yellow-400 animate-pulse">
-              <Shield className="w-8 h-8" />
-            </div>
-
-            {/* Discovered Paths */}
-            {discoveredPaths.map((direction) => {
-              const project = projects.find(p => p.direction === `go ${direction}`);
-              if (!project) return null;
-              
-              const theme = getPathTheme(direction);
-              const isCompleted = completedProjects.includes(project.id);              // Define path end positions from center (192px, 192px)
-              let pathEndX: number = 192;
-              let pathEndY: number = 192;
-              let pathWidth: number = 4;
-              let pathHeight: number = 4;
-              let pathLeft: number = 192;
-              let pathTop: number = 192;
-              
-              switch (direction) {
-                case 'north':
-                  pathEndX = 192; pathEndY = 50; pathWidth = 4; pathHeight = 142; pathLeft = 190; pathTop = 50;
-                  break;
-                case 'east':
-                  pathEndX = 346; pathEndY = 192; pathWidth = 154; pathHeight = 4; pathLeft = 192; pathTop = 190;
-                  break;
-                case 'south':
-                  pathEndX = 192; pathEndY = 334; pathWidth = 4; pathHeight = 142; pathLeft = 190; pathTop = 192;
-                  break;
-                case 'west':
-                  pathEndX = 38; pathEndY = 192; pathWidth = 154; pathHeight = 4; pathLeft = 38; pathTop = 190;
-                  break;
-                case 'northeast':
-                  pathEndX = 284; pathEndY = 100; pathWidth = 130; pathHeight = 4; pathLeft = 192; pathTop = 144;
-                  break;
-                default:
-                  return null;
-              }
-
-              return (
-                <div key={direction} className="animate-fade-in">
-                  {/* Path Line */}
-                  <div
-                    className="absolute bg-gradient-to-r from-amber-500 to-amber-400 rounded-sm shadow-lg shadow-amber-500/50 animate-path-grow"
-                    style={{
-                      width: `${pathWidth}px`,
-                      height: `${pathHeight}px`,
-                      left: `${pathLeft}px`,
-                      top: `${pathTop}px`,
-                      transform: direction === 'northeast' ? 'rotate(-45deg)' : 'none'
-                    }}
-                  />
-
-                  {/* Path Icons */}
-                  {[...Array(3)].map((_, iconIndex) => {
-                    const progress = (iconIndex + 1) / 4;
-                    const iconX = 192 + (pathEndX - 192) * progress;
-                    const iconY = 192 + (pathEndY - 192) * progress;
-                    
-                    return (
-                      <div
-                        key={`${direction}-icon-${iconIndex}`}
-                        className="absolute z-20 w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-400/30 backdrop-blur-sm animate-bounce"
-                        style={{
-                          left: `${iconX - 12}px`,
-                          top: `${iconY - 12}px`,
-                          animationDelay: `${iconIndex * 0.5}s`
-                        }}
+          <div className="space-y-6">
+            {section === 'skills' ? (
+              Object.entries(data.content).map(([category, skills]) => (
+                <div key={category}>
+                  <h3 className="text-xl font-semibold text-cyan-400 mb-3">{category}</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {(skills as string[]).map((skill) => (
+                      <span
+                        key={skill}
+                        className="px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-slate-300"
                       >
-                        <span className="text-xs">{theme.emoji}</span>
-                      </div>
-                    );
-                  })}
-
-                  {/* Project Card at path end */}
-                  <div
-                    className="absolute z-20 animate-scale-in"
-                    style={{
-                      left: `${pathEndX - 64}px`,
-                      top: `${pathEndY - 64}px`,
-                      animationDelay: '1s'
-                    }}
-                  >
-                    <button
-                      onClick={() => onProjectSelect(project)}
-                      className={`
-                        relative w-32 h-32 rounded-xl border-2 backdrop-blur-sm transition-all duration-300
-                        bg-gradient-to-br ${theme.bg} ${theme.border}
-                        hover:scale-105 cursor-pointer shadow-xl shadow-black/20
-                        ${isCompleted ? 'ring-2 ring-green-400/50' : ''}
-                        hover:rotate-1 active:scale-95
-                      `}
-                    >
-                      <div className="flex flex-col items-center justify-center h-full p-3">
-                        <theme.icon size={24} className="mb-2 text-white" />
-                        <span className="text-sm font-bold text-center text-white leading-tight">{project.title}</span>
-                        <span className="text-xs text-amber-200 mt-1">Click to explore</span>
-                        {isCompleted && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs animate-bounce">
-                            ✓
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Magical Glow Effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 via-transparent to-amber-400/20 rounded-xl -z-10 animate-spin" style={{ animationDuration: '8s' }} />
-                    </button>
+                        {skill}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
-
-            {/* Special Commands Portal */}
-            {completedProjects.length === projects.length && (
-              <div className="absolute top-20 right-20 animate-scale-in" style={{ animationDelay: '3s' }}>
-                <button className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center border-4 border-purple-400 shadow-2xl shadow-purple-500/50 hover:scale-110 transition-transform animate-pulse">
-                  <Scroll className="w-8 h-8 text-white" />
-                </button>
-                <p className="text-center text-purple-300 text-xs mt-2">Ancient<br/>Scrolls</p>
-              </div>
+              ))
+            ) : (
+              Object.entries(data.content).map(([key, value]) => (
+                <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-cyan-400 font-semibold min-w-32">{key}:</span>
+                  <span className="text-slate-300">{value}</span>
+                </div>
+              ))
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes scale-in {
-          from { transform: scale(0); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes path-grow {
-          from { transform: scaleX(0) scaleY(0); }
-          to { transform: scaleX(1) scaleY(1); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-        
-        .animate-scale-in {
-          animation: scale-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        
-        .animate-path-grow {
-          animation: path-grow 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-      `}</style>
-    </div>
+    </motion.div>
   );
 }
