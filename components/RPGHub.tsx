@@ -19,8 +19,8 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
     "✨ Type 'help' to see available commands, or begin your quest with 'go north'"
   ]);
   const [input, setInput] = useState('');
-  const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);
-  const [discoveredPaths, setDiscoveredPaths] = useState<string[]>([]);
+  const [availableCommands, setAvailableCommands] = useState(['go north', 'help', 'look around']);  const [discoveredPaths, setDiscoveredPaths] = useState<string[]>([]);
+  const [autoTimeoutId, setAutoTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll terminal
@@ -29,6 +29,27 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);
+
+  // Auto-timeout for first command if no action taken
+  useEffect(() => {
+    if (discoveredPaths.length === 0 && !autoTimeoutId) {
+      const timeoutId = setTimeout(() => {
+        addToHistory("🕐 Time passes... Perhaps you should venture north to begin your quest?");
+        setTimeout(() => {
+          addToHistory("🤖 Auto-executing: go north");
+          handleCommand('go north');
+        }, 2000);
+      }, 10000); // 10 seconds timeout
+      
+      setAutoTimeoutId(timeoutId);
+    }
+
+    return () => {
+      if (autoTimeoutId) {
+        clearTimeout(autoTimeoutId);
+      }
+    };
+  }, [discoveredPaths.length, autoTimeoutId]);
 
   // Update available commands based on progress
   useEffect(() => {
@@ -62,8 +83,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
   const addToHistory = (message: string) => {
     setTerminalHistory(prev => [...prev, message]);
   };
-
   const handleCommand = (command: string) => {
+    // Clear auto-timeout when user takes action
+    if (autoTimeoutId) {
+      clearTimeout(autoTimeoutId);
+      setAutoTimeoutId(null);
+    }
+    
     addToHistory(`> ${command}`);
     const cmd = command.toLowerCase().trim();
 
@@ -167,8 +193,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         break;
         
       default:
-        addToHistory(`❓ Unknown command: "${command}"`);
-        addToHistory("💡 Type 'help' for available commands!");
+        addToHistory(`❓ Unknown command: "${command}"`);        addToHistory("💡 Type 'help' for available commands!");
     }
   };
 
