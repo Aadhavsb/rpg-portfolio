@@ -1,32 +1,32 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 import { RPGHub } from '@/components/RPGHub';
 import { ProjectView } from '@/components/ProjectView';
-import { Terminal } from '@/components/TerminalSimple';
+import { Terminal } from '@/components/Terminal';
 import { Project } from '@/lib/types';
 
-type ViewState = 'hub' | 'project' | 'terminal';
+type ViewState = 'terminal' | 'hub' | 'project';
 
 export default function HomePage() {
-  const [currentView, setCurrentView] = useState<ViewState>('hub');
+  // Start with terminal view (only terminal visible at first)
+  const [currentView, setCurrentView] = useState<ViewState>('terminal');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-    const { 
+  const [hasStartedJourney, setHasStartedJourney] = useState(false);  const { 
     projects, 
     completeProject, 
     unlockProject,
-    getNextAvailableProject,
-    unlockedProjects 
+    getNextAvailableProject
   } = useGameStore();
 
-  // Initialize first project
-  useEffect(() => {
-    if (unlockedProjects.length === 0) {
-      unlockProject('palate');
-    }
-  }, [unlockProject, unlockedProjects.length]);
+  // Don't auto-unlock any projects - let the player discover them through commands
+  // useEffect(() => {
+  //   if (unlockedProjects.length === 0) {
+  //     unlockProject('palate');
+  //   }
+  // }, [unlockProject, unlockedProjects.length]);
 
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
@@ -54,7 +54,12 @@ export default function HomePage() {
     setSelectedProject(null);
   };
 
-  const handleCommandsView = () => {
+  const handleStartJourney = () => {
+    setHasStartedJourney(true);
+    setCurrentView('hub');
+  };
+
+  const handleBackToTerminal = () => {
     setCurrentView('terminal');
   };
 
@@ -70,9 +75,24 @@ export default function HomePage() {
                              radial-gradient(circle at 40% 80%, rgba(120, 200, 255, 0.3) 0%, transparent 50%)`
           }} 
         />
-      </div>
+      </div>      <AnimatePresence mode="wait">
+        {currentView === 'terminal' && (
+          <motion.div
+            key="terminal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative z-10"
+          >
+            <Terminal 
+              onBack={handleBackToTerminal}
+              onStartJourney={handleStartJourney}
+              showStartJourney={!hasStartedJourney}
+            />
+          </motion.div>
+        )}
 
-      <AnimatePresence mode="wait">
         {currentView === 'hub' && (
           <motion.div
             key="hub"
@@ -84,7 +104,7 @@ export default function HomePage() {
           >
             <RPGHub 
               onProjectSelect={handleProjectSelect}
-              onCommandsView={handleCommandsView}
+              onCommandsView={handleBackToTerminal}
             />
           </motion.div>
         )}
@@ -103,19 +123,6 @@ export default function HomePage() {
               onBack={handleBackToHub}
               onComplete={handleProjectComplete}
             />
-          </motion.div>
-        )}
-
-        {currentView === 'terminal' && (
-          <motion.div
-            key="terminal"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.5 }}
-            className="relative z-10"
-          >
-            <Terminal onBack={handleBackToHub} />
           </motion.div>
         )}
       </AnimatePresence>
