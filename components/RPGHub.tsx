@@ -220,16 +220,16 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       setInput('');
     }
   };  const getPathPosition = (direction: string) => {
-    // Fixed path positioning - cards at actual end of paths in correct directions
-    const pathLength = 200;
+    // CORRECT path positioning - each direction has unique coordinates
+    const distance = 220;
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'north': { x: 0, y: -pathLength, rotation: -90, pathLength }, // North = up = negative Y
-      'east': { x: pathLength, y: 0, rotation: 0, pathLength },     // East = right = positive X
-      'south': { x: 0, y: pathLength, rotation: 90, pathLength },   // South = down = positive Y
-      'west': { x: -pathLength, y: 0, rotation: 180, pathLength },  // West = left = negative X
-      'northeast': { x: pathLength * 0.71, y: -pathLength * 0.71, rotation: -45, pathLength } // 45 degrees up-right
+      'north': { x: 0, y: -distance, rotation: 90, pathLength: distance },     // North = UP (negative Y)
+      'east': { x: distance, y: 0, rotation: 0, pathLength: distance },        // East = RIGHT (positive X) 
+      'south': { x: 0, y: distance, rotation: 90, pathLength: distance },      // South = DOWN (positive Y)
+      'west': { x: -distance, y: 0, rotation: 0, pathLength: distance },       // West = LEFT (negative X)
+      'northeast': { x: distance * 0.71, y: -distance * 0.71, rotation: 45, pathLength: distance } // Northeast = UP-RIGHT
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: distance };
   };
   const getPathTheme = (direction: string) => {
     const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {
@@ -375,7 +375,9 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
               className="relative z-30 w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl shadow-amber-500/50 border-4 border-yellow-400"
             >
               <Shield className="w-8 h-8" />
-            </motion.div>            {/* Discovered Paths with Animated Lines and Icons */}
+            </motion.div>
+
+            {/* Discovered Paths with Animated Lines and Icons */}
             <AnimatePresence>
               {discoveredPaths.map((direction) => {
                 const project = projects.find(p => p.direction === `go ${direction}`);
@@ -384,9 +386,13 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                 const position = getPathPosition(direction);
                 const theme = getPathTheme(direction);
                 const isCompleted = completedProjects.includes(project.id);
+                  // Each direction gets its own unique positioning
+                const pathEndX = position.x; // End at card position
+                const pathEndY = position.y; // End at card position
                 
                 return (
-                  <React.Fragment key={direction}>                    {/* Animated Path Line */}
+                  <React.Fragment key={direction}>
+                    {/* Animated Path Line - FIXED to go to correct direction */}
                     <motion.div
                       initial={{ scaleX: 0, opacity: 0 }}
                       animate={{ scaleX: 1, opacity: 1 }}
@@ -400,21 +406,20 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                       }}
                       className="absolute z-10"
                       style={{
-                        width: `${position.pathLength}px`,
+                        width: `${Math.sqrt(pathEndX * pathEndX + pathEndY * pathEndY)}px`,
                         height: '4px',
-                        background: `linear-gradient(90deg, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.4) 70%, transparent 100%)`,
-                        transform: `rotate(${position.rotation}deg)`,
-                        transformOrigin: '0 center', // Start from the beginning of the line
+                        background: `linear-gradient(to right, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.4) 70%, transparent 100%)`,
+                        transformOrigin: '0 50%',
                         left: '50%',
                         top: '50%',
-                        marginTop: '-2px'
+                        transform: `translate(0, -50%) rotate(${Math.atan2(pathEndY, pathEndX) * 180 / Math.PI}deg)`,
                       }}
-                    />                    {/* Path Icons */}
+                    />                    {/* Path Icons - FIXED to be unique per direction */}
                     {[...Array(3)].map((_, iconIndex) => {
                       // Calculate position along the path towards the final destination
                       const progress = (iconIndex + 1) / 4; // 25%, 50%, 75% along the path
-                      const iconX = position.x * progress;
-                      const iconY = position.y * progress;
+                      const iconX = pathEndX * progress;
+                      const iconY = pathEndY * progress;
                       
                       return (
                         <motion.div
@@ -439,8 +444,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                           </div>
                         </motion.div>
                       );
-                    })}
-                      {/* Project Card at End of Path */}
+                    })}                    {/* Project Card at End of Path - FIXED positioning */}
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ 
@@ -458,7 +462,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                       style={{
                         left: '50%',
                         top: '50%',
-                        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`
+                        transform: `translate(-50%, -50%) translate(${pathEndX}px, ${pathEndY}px)`
                       }}
                     >
                       <motion.button
