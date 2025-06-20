@@ -29,19 +29,26 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);
-
   // Auto-timeout for first command if no action taken
   useEffect(() => {
-    if (discoveredPaths.length === 0 && !autoTimeoutId) {
+    if (discoveredPaths.length === 0 && !autoTimeoutId && input === '') {
       const timeoutId = setTimeout(() => {
         addToHistory("🕐 Time passes... Perhaps you should venture north to begin your quest?");
         setTimeout(() => {
           addToHistory("🤖 Auto-executing: go north");
           handleCommand('go north');
         }, 2000);
-      }, 10000); // 10 seconds timeout
+      }, 15000); // 15 seconds timeout
       
       setAutoTimeoutId(timeoutId);
+    }
+
+    // Clear timeout if user starts typing or takes action
+    if (input !== '' || discoveredPaths.length > 0) {
+      if (autoTimeoutId) {
+        clearTimeout(autoTimeoutId);
+        setAutoTimeoutId(null);
+      }
     }
 
     return () => {
@@ -49,28 +56,26 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
         clearTimeout(autoTimeoutId);
       }
     };
-  }, [discoveredPaths.length, autoTimeoutId]);
-
+  }, [discoveredPaths.length, autoTimeoutId, input]);
   // Update available commands based on progress
   useEffect(() => {
     const newCommands = ['help', 'look around'];
     
-    // Add directional commands based on discovered paths
-    if (!discoveredPaths.includes('north') && !unlockedProjects.includes('palate')) {
-      newCommands.push('go north');
-    }
-    if (discoveredPaths.includes('north') && !discoveredPaths.includes('east')) {
-      newCommands.push('go east');
-    }
-    if (discoveredPaths.includes('east') && !discoveredPaths.includes('south')) {
-      newCommands.push('go south');
-    }
-    if (discoveredPaths.includes('south') && !discoveredPaths.includes('west')) {
-      newCommands.push('go west');
-    }
-    if (discoveredPaths.includes('west') && !discoveredPaths.includes('northeast')) {
-      newCommands.push('go northeast');
-    }
+    // Always show all available directional commands
+    const allDirections = ['go north', 'go east', 'go south', 'go west', 'go northeast'];
+    
+    // Add discovered directions and next available direction
+    allDirections.forEach(direction => {
+      const directionKey = direction.replace('go ', '');
+      if (discoveredPaths.includes(directionKey) || 
+          (directionKey === 'north' && !discoveredPaths.includes('north')) ||
+          (directionKey === 'east' && discoveredPaths.includes('north') && !discoveredPaths.includes('east')) ||
+          (directionKey === 'south' && discoveredPaths.includes('east') && !discoveredPaths.includes('south')) ||
+          (directionKey === 'west' && discoveredPaths.includes('south') && !discoveredPaths.includes('west')) ||
+          (directionKey === 'northeast' && discoveredPaths.includes('west') && !discoveredPaths.includes('northeast'))) {
+        newCommands.push(direction);
+      }
+    });
     
     // Add special commands when all projects are complete
     if (completedProjects.length === projects.length) {
@@ -204,16 +209,15 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       setInput('');
     }
   };
-
   const getPathPosition = (direction: string) => {
-    const positions: Record<string, { x: number; y: number; rotation: number }> = {
-      'go north': { x: 0, y: -180, rotation: 0 },
-      'go east': { x: 180, y: 0, rotation: 90 },
-      'go south': { x: 0, y: 180, rotation: 180 },
-      'go west': { x: -180, y: 0, rotation: 270 },
-      'go northeast': { x: 127, y: -127, rotation: 45 }
+    const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
+      'go north': { x: 0, y: -220, rotation: 0, pathLength: 180 },
+      'go east': { x: 220, y: 0, rotation: 90, pathLength: 180 },
+      'go south': { x: 0, y: 220, rotation: 180, pathLength: 180 },
+      'go west': { x: -220, y: 0, rotation: 270, pathLength: 180 },
+      'go northeast': { x: 155, y: -155, rotation: 45, pathLength: 180 }
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0 };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 180 };
   };
 
   const getPathTheme = (direction: string) => {
@@ -353,18 +357,17 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
           className="w-1/2 p-6 flex items-center justify-center relative"
         >
           {/* Central Hub */}
-          <div className="relative">
-            {/* Hero Avatar */}
+          <div className="relative">            {/* Hero Avatar - Central Hub */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}
-              className="relative z-20 w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl shadow-amber-500/50 border-4 border-yellow-400"
+              className="relative z-30 w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl shadow-amber-500/50 border-4 border-yellow-400"
             >
               <Shield className="w-8 h-8" />
             </motion.div>
 
-            {/* Discovered Paths */}
+            {/* Discovered Paths with Animated Lines and Icons */}
             <AnimatePresence>
               {discoveredPaths.map((direction) => {
                 const project = projects.find(p => p.direction === direction);
@@ -375,82 +378,124 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                 const isCompleted = completedProjects.includes(project.id);
                 
                 return (
-                  <motion.div
-                    key={direction}
-                    initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-                    animate={{ 
-                      opacity: 1, 
-                      scale: 1,
-                      x: position.x,
-                      y: position.y
-                    }}
-                    exit={{ opacity: 0, scale: 0 }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 200, 
-                      damping: 20,
-                      delay: 0.5 
-                    }}
-                    className="absolute"
-                  >
-                    {/* Path Line */}
+                  <React.Fragment key={direction}>
+                    {/* Animated Path Line */}
                     <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: 0.3, duration: 0.8 }}
-                      className="absolute w-32 h-1 bg-gradient-to-r from-amber-500/50 to-transparent"
+                      initial={{ scaleX: 0, opacity: 0 }}
+                      animate={{ scaleX: 1, opacity: 1 }}
+                      exit={{ scaleX: 0, opacity: 0 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 100, 
+                        damping: 15,
+                        delay: 0.3,
+                        duration: 1.2
+                      }}
+                      className="absolute z-10"
                       style={{
+                        width: `${position.pathLength}px`,
+                        height: '4px',
+                        background: `linear-gradient(90deg, rgba(245, 158, 11, 0.8) 0%, rgba(245, 158, 11, 0.4) 70%, transparent 100%)`,
                         transform: `rotate(${position.rotation}deg)`,
                         transformOrigin: 'left center',
-                        left: position.x > 0 ? '-40px' : position.x < 0 ? '40px' : '-40px',
-                        top: '50%'
+                        left: '50%',
+                        top: '50%',
+                        marginLeft: '10px',
+                        marginTop: '-2px'
                       }}
                     />
                     
-                    {/* Project Portal */}
-                    <motion.button
-                      onClick={() => onProjectSelect(project)}
-                      className={`
-                        relative w-24 h-24 rounded-xl border-2 backdrop-blur-sm transition-all duration-300
-                        bg-gradient-to-br ${theme.bg} ${theme.border}
-                        hover:scale-110 cursor-pointer shadow-lg
-                        ${isCompleted ? 'ring-2 ring-green-400/50' : ''}
-                      `}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div className="flex flex-col items-center justify-center h-full p-2">
-                        <theme.icon size={20} className="mb-1" />
-                        <span className="text-xs font-bold text-center">{project.title}</span>
-                        {isCompleted && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
-                          >
-                            ✓
-                          </motion.div>
-                        )}
-                      </div>
-                      
-                      {/* Magical Glow Effect */}
+                    {/* Path Icons */}
+                    {[...Array(3)].map((_, iconIndex) => (
                       <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 via-transparent to-amber-400/20 rounded-xl"
-                      />
-                    </motion.button>
-                  </motion.div>
+                        key={`${direction}-icon-${iconIndex}`}
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 0.7 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ 
+                          delay: 0.5 + iconIndex * 0.2,
+                          type: "spring",
+                          stiffness: 200
+                        }}
+                        className="absolute z-20"
+                        style={{
+                          left: '50%',
+                          top: '50%',
+                          transform: `translate(-50%, -50%) translate(${(iconIndex + 1) * (position.pathLength / 4) * Math.cos((position.rotation - 90) * Math.PI / 180)}px, ${(iconIndex + 1) * (position.pathLength / 4) * Math.sin((position.rotation - 90) * Math.PI / 180)}px)`
+                        }}
+                      >
+                        <div className="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-400/30 backdrop-blur-sm">
+                          <span className="text-xs">{theme.emoji}</span>
+                        </div>
+                      </motion.div>
+                    ))}
+                    
+                    {/* Project Card at End of Path */}
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: 1, 
+                        opacity: 1,
+                        x: position.x,
+                        y: position.y
+                      }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 150, 
+                        damping: 20,
+                        delay: 1.0
+                      }}
+                      className="absolute z-20"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    >
+                      <motion.button
+                        onClick={() => onProjectSelect(project)}
+                        className={`
+                          relative w-32 h-32 rounded-xl border-2 backdrop-blur-sm transition-all duration-300
+                          bg-gradient-to-br ${theme.bg} ${theme.border}
+                          hover:scale-105 cursor-pointer shadow-xl shadow-black/20
+                          ${isCompleted ? 'ring-2 ring-green-400/50' : ''}
+                        `}
+                        whileHover={{ scale: 1.05, rotate: 2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <div className="flex flex-col items-center justify-center h-full p-3">
+                          <theme.icon size={24} className="mb-2 text-white" />
+                          <span className="text-sm font-bold text-center text-white leading-tight">{project.title}</span>
+                          <span className="text-xs text-amber-200 mt-1">Click to explore</span>
+                          {isCompleted && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs"
+                            >
+                              ✓
+                            </motion.div>
+                          )}
+                        </div>
+                        
+                        {/* Magical Glow Effect */}
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                          className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 via-transparent to-amber-400/20 rounded-xl -z-10"
+                        />
+                      </motion.button>
+                    </motion.div>
+                  </React.Fragment>
                 );
               })}
-            </AnimatePresence>
-
-            {/* Progress Indicator */}
+            </AnimatePresence>            {/* Progress Indicator */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2 }}
-              className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center"
+              className="absolute -bottom-24 left-1/2 transform -translate-x-1/2 text-center"
             >
               <div className="bg-black/60 backdrop-blur px-4 py-2 rounded-lg border border-amber-500/30">
                 <p className="text-amber-200 text-sm">
