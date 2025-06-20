@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
 import { RPGHub } from '@/components/RPGHub';
 import { ProjectView } from '@/components/ProjectView';
-import { Terminal } from '@/components/Terminal';
+import { Terminal } from '@/components/TerminalSimple';
 import { Project } from '@/lib/types';
 
 type ViewState = 'hub' | 'project' | 'terminal';
@@ -13,13 +13,11 @@ type ViewState = 'hub' | 'project' | 'terminal';
 export default function HomePage() {
   const [currentView, setCurrentView] = useState<ViewState>('hub');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  
-  const { 
+    const { 
     projects, 
     completeProject, 
     unlockProject,
     getNextAvailableProject,
-    getAllProjectsCompleted,
     unlockedProjects 
   } = useGameStore();
 
