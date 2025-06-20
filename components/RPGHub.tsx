@@ -210,27 +210,25 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
       handleCommand(input.trim());
       setInput('');
     }
-  };
-  const getPathPosition = (direction: string) => {
+  };  const getPathPosition = (direction: string) => {
     const positions: Record<string, { x: number; y: number; rotation: number; pathLength: number }> = {
-      'go north': { x: 0, y: -220, rotation: 0, pathLength: 180 },
-      'go east': { x: 220, y: 0, rotation: 90, pathLength: 180 },
-      'go south': { x: 0, y: 220, rotation: 180, pathLength: 180 },
-      'go west': { x: -220, y: 0, rotation: 270, pathLength: 180 },
-      'go northeast': { x: 155, y: -155, rotation: 45, pathLength: 180 }
+      'north': { x: 0, y: -180, rotation: 0, pathLength: 150 },
+      'east': { x: 180, y: 0, rotation: 90, pathLength: 150 },
+      'south': { x: 0, y: 180, rotation: 180, pathLength: 150 },
+      'west': { x: -180, y: 0, rotation: 270, pathLength: 150 },
+      'northeast': { x: 127, y: -127, rotation: 45, pathLength: 150 }
     };
-    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 180 };
+    return positions[direction] || { x: 0, y: 0, rotation: 0, pathLength: 150 };
   };
-
   const getPathTheme = (direction: string) => {
     const themes: Record<string, { bg: string; border: string; icon: React.ComponentType<{ size?: number; className?: string }>; emoji: string }> = {
-      'go north': { bg: 'from-blue-600/30 to-cyan-500/30', border: 'border-blue-400/50', icon: Compass, emoji: '🧭' },
-      'go east': { bg: 'from-green-600/30 to-emerald-500/30', border: 'border-green-400/50', icon: TreePine, emoji: '🌲' },
-      'go south': { bg: 'from-red-600/30 to-orange-500/30', border: 'border-red-400/50', icon: Sword, emoji: '⚔️' },
-      'go west': { bg: 'from-yellow-600/30 to-amber-500/30', border: 'border-yellow-400/50', icon: Castle, emoji: '🏰' },
-      'go northeast': { bg: 'from-purple-600/30 to-pink-500/30', border: 'border-purple-400/50', icon: Sparkles, emoji: '✨' }
+      'north': { bg: 'from-blue-600/30 to-cyan-500/30', border: 'border-blue-400/50', icon: Compass, emoji: '🧭' },
+      'east': { bg: 'from-green-600/30 to-emerald-500/30', border: 'border-green-400/50', icon: TreePine, emoji: '🌲' },
+      'south': { bg: 'from-red-600/30 to-orange-500/30', border: 'border-red-400/50', icon: Sword, emoji: '⚔️' },
+      'west': { bg: 'from-yellow-600/30 to-amber-500/30', border: 'border-yellow-400/50', icon: Castle, emoji: '🏰' },
+      'northeast': { bg: 'from-purple-600/30 to-pink-500/30', border: 'border-purple-400/50', icon: Sparkles, emoji: '✨' }
     };
-    return themes[direction] || themes['go north'];
+    return themes[direction] || themes['north'];
   };
 
   return (
@@ -366,12 +364,10 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
               className="relative z-30 w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-2xl shadow-amber-500/50 border-4 border-yellow-400"
             >
               <Shield className="w-8 h-8" />
-            </motion.div>
-
-            {/* Discovered Paths with Animated Lines and Icons */}
+            </motion.div>            {/* Discovered Paths with Animated Lines and Icons */}
             <AnimatePresence>
               {discoveredPaths.map((direction) => {
-                const project = projects.find(p => p.direction === direction);
+                const project = projects.find(p => p.direction === `go ${direction}`);
                 if (!project) return null;
                 
                 const position = getPathPosition(direction);
@@ -436,9 +432,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ 
                         scale: 1, 
-                        opacity: 1,
-                        x: position.x,
-                        y: position.y
+                        opacity: 1
                       }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ 
@@ -451,7 +445,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                       style={{
                         left: '50%',
                         top: '50%',
-                        transform: 'translate(-50%, -50%)'
+                        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`
                       }}
                     >
                       <motion.button
@@ -491,7 +485,7 @@ export function RPGHub({ onProjectSelect, onCommandsView }: RPGHubProps) {
                   </React.Fragment>
                 );
               })}
-            </AnimatePresence>            {/* Progress Indicator */}
+            </AnimatePresence>{/* Progress Indicator */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
