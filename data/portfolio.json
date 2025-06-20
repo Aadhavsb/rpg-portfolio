@@ -1,0 +1,118 @@
+{
+  "projects": [
+    {
+      "id": "palate",
+      "title": "Palate",
+      "direction": "go north",
+      "pathLabel": "Learn full stack SWE",
+      "description": "A full-stack MERN recipe generator that accepts text/image input and returns a complete recipe.",
+      "githubUrl": "https://github.com/Aadhavsb/Palate",
+      "unlocked": false,
+      "completed": false
+    },
+    {
+      "id": "expressink",
+      "title": "ExpressInk",
+      "direction": "go east",
+      "pathLabel": "Hackathon project for a good cause",
+      "description": "AI-powered tool analyzing children's emotions from their drawings. Supports autism-focused screening.",
+      "githubUrl": "https://github.com/Aadhavsb/ExpressInk",
+      "unlocked": false,
+      "completed": false
+    },
+    {
+      "id": "premier-league",
+      "title": "Premier League Predictor",
+      "direction": "go south",
+      "pathLabel": "Apply ML/AI & stats",
+      "description": "Machine learning model to predict Premier League outcomes using historical data and statistical inference.",
+      "githubUrl": "https://github.com/Aadhavsb/premier-league-predictor",
+      "unlocked": false,
+      "completed": false
+    },
+    {
+      "id": "inventory360",
+      "title": "Inventory360",
+      "direction": "go west",
+      "pathLabel": "Use your skills professionally",
+      "description": "Secure inventory system for 1000 users across 12 sites with an interactive, user-friendly frontend. Utilizes MongoDB, Zod validation, and robust auth.",
+      "unlocked": false,
+      "completed": false
+    },
+    {
+      "id": "brickd",
+      "title": "Brick'd",
+      "direction": "go northeast",
+      "pathLabel": "Explore your creative side",
+      "description": "C# platformer with an inventive twist. Fun and polished. Released on Itch.io.",
+      "githubUrl": "https://github.com/Aadhavsb/SPRING2025ECSE290Team4",
+      "demoUrl": "https://ecse-csds290.itch.io/brickdup",
+      "unlocked": false,
+      "completed": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "JavaScript",
+      "icon": "🟨",
+      "category": "Languages"
+    },
+    {
+      "name": "Python",
+      "icon": "🐍",
+      "category": "Languages"
+    },
+    {
+      "name": "Java",
+      "icon": "☕",
+      "category": "Languages"
+    },
+    {
+      "name": "C#",
+      "icon": "⚙️",
+      "category": "Languages"
+    },
+    {
+      "name": "React",
+      "icon": "⚛️",
+      "category": "Frontend"
+    },
+    {
+      "name": "Next.js",
+      "icon": "▲",
+      "category": "Frontend"
+    },
+    {
+      "name": "Node.js",
+      "icon": "🟢",
+      "category": "Backend"
+    },
+    {
+      "name": "MongoDB",
+      "icon": "🍃",
+      "category": "Database"
+    },
+    {
+      "name": "Machine Learning",
+      "icon": "🤖",
+      "category": "AI/ML"
+    },
+    {
+      "name": "Docker",
+      "icon": "🐳",
+      "category": "DevOps"
+    }
+  ],
+  "research": {
+    "title": "KV Cache Compression in Transformers",
+    "description": "Exploring KV cache compression in transformers using mathematical tools like singular value decomposition (SVD) and dynamic rank adjustment. This work contributes to reducing memory usage during inference on large language models without significant loss in quality.",
+    "project": "chunkedDecomp",
+    "projectDescription": "Chunk-wise SVD compression for transformer KV caches. Low memory usage, high accuracy on HPC GPUs using Dockerized environment.",
+    "githubUrl": "https://github.com/Aadhavsb/chunkedDecomp"
+  },
+  "contact": {
+    "email": "bharadwajaadhav@gmail.com",
+    "github": "https://github.com/Aadhavsb",
+    "linkedin": "https://www.linkedin.com/in/aadhav-bharadwaj/"
+  }
+}
