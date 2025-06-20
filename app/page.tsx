@@ -14,20 +14,14 @@ export default function HomePage() {
   // Start with terminal view (only terminal visible at first)
   const [currentView, setCurrentView] = useState<ViewState>('terminal');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [hasStartedJourney, setHasStartedJourney] = useState(false);  const { 
+  const [hasStartedJourney, setHasStartedJourney] = useState(false);
+  const { 
     projects, 
     completedProjects,
-    completeProject, 
-    unlockProject,
-    getNextAvailableProject
+    completeProject
   } = useGameStore();
 
-  // Don't auto-unlock any projects - let the player discover them through commands
-  // useEffect(() => {
-  //   if (unlockedProjects.length === 0) {
-  //     unlockProject('palate');
-  //   }
-  // }, [unlockProject, unlockedProjects.length]);  const handleProjectSelect = (project: Project) => {
+  const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
     setCurrentView('project');
     // Automatically mark as explored when visiting
@@ -62,7 +56,9 @@ export default function HomePage() {
                              radial-gradient(circle at 40% 80%, rgba(120, 200, 255, 0.3) 0%, transparent 50%)`
           }} 
         />
-      </div>      <AnimatePresence mode="wait">
+      </div>
+
+      <AnimatePresence mode="wait">
         {currentView === 'terminal' && (
           <motion.div
             key="terminal"
@@ -104,7 +100,8 @@ export default function HomePage() {
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.5 }}
             className="relative z-10"
-          >            <ProjectView
+          >
+            <ProjectView
               project={selectedProject}
               onBack={handleBackToHub}
             />
