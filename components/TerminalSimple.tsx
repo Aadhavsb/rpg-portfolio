@@ -5,18 +5,18 @@ import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 
 interface TerminalSimpleProps {
-  onCommand: (command: string) => void;
   history: string[];
+  onCommand: (command: string) => void;
 }
 
-export function TerminalSimple({ onCommand, history }: TerminalSimpleProps) {
+export function TerminalSimple({ history, onCommand }: TerminalSimpleProps) {
   const [input, setInput] = useState('');
-  const terminalRef = useRef<HTMLDivElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll terminal
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    if (outputRef.current) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight;
     }
   }, [history]);
 
@@ -29,21 +29,21 @@ export function TerminalSimple({ onCommand, history }: TerminalSimpleProps) {
   };
 
   return (
-    <div className="flex-1 bg-black/80 backdrop-blur border-2 border-amber-500/30 rounded-lg overflow-hidden shadow-2xl shadow-amber-500/20">
+    <div className="h-full flex flex-col bg-slate-900/50 rounded-lg border border-slate-700/50">
       {/* Terminal Header */}
-      <div className="bg-gradient-to-r from-amber-600/20 to-yellow-600/20 px-4 py-2 border-b border-amber-500/30 flex items-center gap-2">
+      <div className="flex items-center gap-2 p-3 border-b border-slate-700/50">
         <div className="flex gap-1">
           <div className="w-3 h-3 bg-red-500 rounded-full"></div>
           <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
         </div>
-        <span className="text-amber-300 text-sm font-mono ml-2">⚔️ Adventurer&apos;s Terminal ⚔️</span>
+        <span className="text-slate-400 text-sm font-mono">terminal</span>
       </div>
 
-      {/* Terminal Content */}
-      <div
-        ref={terminalRef}
-        className="h-64 overflow-y-auto p-4 font-mono text-sm space-y-1"
+      {/* Terminal Output */}
+      <div 
+        ref={outputRef}
+        className="flex-1 p-4 overflow-y-auto text-sm font-mono space-y-1 min-h-0"
       >
         {history.map((line, index) => (
           <motion.div
@@ -51,7 +51,7 @@ export function TerminalSimple({ onCommand, history }: TerminalSimpleProps) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="text-amber-200"
+            className="text-slate-300"
           >
             {line}
           </motion.div>
@@ -59,24 +59,27 @@ export function TerminalSimple({ onCommand, history }: TerminalSimpleProps) {
       </div>
 
       {/* Terminal Input */}
-      <div className="border-t border-amber-500/30 p-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <span className="text-amber-400 font-mono">$</span>
+      <form onSubmit={handleSubmit} className="p-3 border-t border-slate-700/50">
+        <div className="flex items-center gap-2">
+          <span className="text-cyan-400 font-mono">$</span>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent text-amber-200 font-mono outline-none placeholder-amber-600"
-            placeholder="Enter your command..."
+            className="flex-1 bg-transparent text-slate-300 font-mono outline-none placeholder-slate-500"
+            placeholder="Enter command..."
+            autoFocus
           />
-          <button
+          <motion.button
             type="submit"
-            className="text-amber-400 hover:text-amber-300"
+            className="p-1 text-slate-400 hover:text-cyan-400 transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
             <Send size={16} />
-          </button>
-        </form>
-      </div>
+          </motion.button>
+        </div>
+      </form>
     </div>
   );
 }
