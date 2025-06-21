@@ -31,9 +31,9 @@ export function RPGHub() {
   const [currentSection, setCurrentSection] = useState<SectionType | null>(null);
   const [skillsUnlocked, setSkillsUnlocked] = useState(false);
   const [researchUnlocked, setResearchUnlocked] = useState(false);
-  const [contactUnlocked, setContactUnlocked] = useState(false);
-  const [resumeUnlocked, setResumeUnlocked] = useState(false);
+  const [contactUnlocked, setContactUnlocked] = useState(false);  const [resumeUnlocked, setResumeUnlocked] = useState(false);
   const [animatingPath, setAnimatingPath] = useState<string | null>(null);
+  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
 
   // Project icon mapping
   const projectIcons = {
@@ -152,14 +152,17 @@ export function RPGHub() {
       case 'contact':
         setContactUnlocked(true);
         addTerminalEntry('Beacon activated! Contact channels established...');
-        break;
-      case 'resume':
+        break;      case 'resume':
         setResumeUnlocked(true);
         addTerminalEntry('Apprenticeship documents materialized!');
         // Check if this completes everything
         setTimeout(() => {
           addTerminalEntry('🎆 INCREDIBLE! You have unlocked everything!');
           addTerminalEntry('🏆 PORTFOLIO MASTERY ACHIEVED! Welcome to the completion ceremony!');
+          // Show completion screen after a delay
+          setTimeout(() => {
+            setShowCompletionScreen(true);
+          }, 2000);
         }, 1000);
         break;
     }
@@ -269,13 +272,9 @@ export function RPGHub() {
       />
     );
   }
-
-  // Completion screen - when everything is done
-  const allCompleted = completedProjects.length === projects.length && 
-                      skillsUnlocked && researchUnlocked && contactUnlocked && resumeUnlocked;
-  
-  if (allCompleted) {
-    return <CompletionScreen onBack={() => setCurrentView('hub')} />;
+  // Completion screen - only when explicitly triggered
+  if (showCompletionScreen) {
+    return <CompletionScreen onBack={() => setShowCompletionScreen(false)} />;
   }
 
   // Main hub view
