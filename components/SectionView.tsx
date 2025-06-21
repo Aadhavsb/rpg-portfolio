@@ -15,41 +15,46 @@ export function SectionView({ section, onBack }: SectionViewProps) {  const sect
       icon: Code,
       description: 'Technical abilities and expertise',
       content: {
-        'Programming Languages': ['JavaScript', 'Python', 'Java', 'C#', 'C', 'R'],
-        'Web Technologies': ['React', 'Node.js', 'Next.js'],
+        'Programming Languages': [
+          { name: 'JavaScript', icon: '🟨' },
+          { name: 'Python', icon: '🐍' },
+          { name: 'Java', icon: '☕' },
+          { name: 'C#', icon: '🔷' },
+          { name: 'C', icon: '⚡' },
+          { name: 'R', icon: '📊' }
+        ],
+        'Frameworks & Libraries': [
+          { name: 'React', icon: '⚛️' },
+          { name: 'Node.js', icon: '🟢' },
+          { name: 'Next.js', icon: '▲' }
+        ],
         'Note': 'Refer to the resume scroll for full list of skills.'
       }
-    },
-    research: {
+    },    research: {
       title: 'Research Scroll',
       icon: Brain,
       description: 'Advanced scroll chronicling ongoing research efforts',
       content: {
-        'Focus': 'Transformer architecture optimization - investigating KV cache compression for large language models',
-        'Method': 'Chunk-wise singular value decomposition (SVD) and dynamic token-rank strategies',
-        'Goal': 'Make inference more memory-efficient without degrading output quality',
-        'Implementation': 'Mathematical exploration, GPU-accelerated computation, and high-performance system design',
-        'Deployment': 'Dockerized environments in HPC clusters',
+        'Overview': 'Gain access to an advanced scroll chronicling ongoing research efforts in transformer architecture optimization. I am investigating KV cache compression for large language models—specifically through chunk-wise singular value decomposition (SVD) and dynamic token-rank strategies.',
+        'Technical Focus': 'The work combines mathematical exploration, GPU-accelerated computation, and high-performance system design to make inference more memory-efficient without degrading output quality.',
+        'Deployment': 'This research is deployed across Dockerized environments in HPC clusters.',
         'Repository': 'GitHub: chunkedDecomp'
       }
-    },
-    contact: {
+    },contact: {
       title: 'Contact Beacon',
       icon: Mail,
       description: 'Connect and collaborate',
       content: {
-        'Gmail': 'bharadwajaadhav@gmail.com',
-        'GitHub': 'github.com/Aadhavsb',
-        'LinkedIn': 'linkedin.com/in/aadhav-bharadwaj'
+        'Gmail': { text: 'bharadwajaadhav@gmail.com', icon: '📧', link: 'mailto:bharadwajaadhav@gmail.com' },
+        'GitHub': { text: 'github.com/Aadhavsb', icon: '🐙', link: 'https://github.com/Aadhavsb' },
+        'LinkedIn': { text: 'linkedin.com/in/aadhav-bharadwaj', icon: '💼', link: 'https://linkedin.com/in/aadhav-bharadwaj' }
       }
-    },
-    resume: {
+    },    resume: {
       title: 'Resume Scroll',
       icon: FileText,
       description: 'Professional experience and education',
       content: {
-        'Download': 'Click the resume icon to download or open the PDF resume',
-        'Note': 'Complete professional documentation available'
+        'Download': { text: 'Click to download or open PDF resume', icon: '📄', link: '#' }
       }
     }
   };
@@ -84,94 +89,72 @@ export function SectionView({ section, onBack }: SectionViewProps) {  const sect
               <Icon size={32} className="text-blue-400" />
             </div>
             <h1 className="text-3xl font-bold text-slate-200">{data.title}</h1>
-          </div>          <div className="space-y-6">
-            {section === 'skills' ? (
+          </div>          <div className="space-y-6">            {section === 'skills' ? (
               Object.entries(data.content).map(([category, value]) => (
                 <div key={category}>
                   <h3 className="text-xl font-semibold text-blue-400 mb-3">{category}</h3>
-                  {Array.isArray(value) ? (
-                    <div className="flex flex-wrap gap-3">
-                      {value.map((skill) => (
+                  {Array.isArray(value) ? (                    <div className="flex flex-wrap gap-3">
+                      {value.map((item: { name: string; icon?: string } | string) => (
                         <span
-                          key={skill}
-                          className="px-4 py-2 bg-slate-800/60 border border-slate-600/50 rounded-lg text-slate-300 hover:bg-slate-700/60 transition-colors"
+                          key={typeof item === 'object' ? item.name : item}
+                          className="px-4 py-2 bg-slate-800/60 border border-slate-600/50 rounded-lg text-slate-300 hover:bg-slate-700/60 transition-colors flex items-center gap-2"
                         >
-                          {skill}
+                          {typeof item === 'object' && item.icon && <span className="text-lg">{item.icon}</span>}
+                          {typeof item === 'object' ? item.name : item}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-slate-400 italic">{value}</p>
+                    <p className="text-slate-400 italic">{value as string}</p>
                   )}
                 </div>
-              ))
-            ) : section === 'contact' ? (
+              ))            ) : section === 'contact' ? (
               <div className="space-y-6">
                 <div className="text-center">
-                  <p className="text-slate-400 mb-6">Click the icons below to connect:</p>
-                  <div className="flex justify-center space-x-8">
-                    <motion.a
-                      href="mailto:bharadwajaadhav@gmail.com"
-                      className="flex flex-col items-center space-y-2 p-4 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
-                        <Mail size={24} className="text-red-400" />
-                      </div>
-                      <span className="text-sm font-medium text-slate-300">Gmail</span>
-                    </motion.a>
-                    
-                    <motion.a
-                      href="https://github.com/Aadhavsb"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center space-y-2 p-4 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                        <Code size={24} className="text-purple-400" />
-                      </div>
-                      <span className="text-sm font-medium text-slate-300">GitHub</span>
-                    </motion.a>
-                    
-                    <motion.a
-                      href="https://linkedin.com/in/aadhav-bharadwaj"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center space-y-2 p-4 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                        <Brain size={24} className="text-blue-400" />
-                      </div>
-                      <span className="text-sm font-medium text-slate-300">LinkedIn</span>
-                    </motion.a>
+                  <p className="text-slate-400 mb-6">Click the icons below to connect:</p>                  <div className="flex justify-center space-x-8">
+                    {Object.entries(data.content).map(([key, value]: [string, { text: string; icon: string; link: string }]) => (
+                      <motion.a
+                        key={key}
+                        href={value.link}
+                        target={value.link.startsWith('http') ? '_blank' : undefined}
+                        rel={value.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className="flex flex-col items-center space-y-2 p-4 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group"
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                          <span className="text-2xl">{value.icon}</span>
+                        </div>
+                        <span className="text-sm font-medium text-slate-300">{key}</span>
+                        <span className="text-xs text-slate-500 text-center max-w-32 truncate">{value.text}</span>
+                      </motion.a>
+                    ))}
                   </div>
                 </div>
-              </div>
-            ) : section === 'resume' ? (
+              </div>            ) : section === 'resume' ? (
               <div className="text-center space-y-6">
-                <motion.button
-                  className="flex flex-col items-center space-y-4 p-8 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group mx-auto"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    // Add resume download logic here
-                    alert('Resume download will be implemented soon!');
-                  }}
-                >
-                  <div className="w-16 h-16 bg-amber-500/20 rounded-xl flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
-                    <FileText size={32} className="text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-200 mb-2">Download Resume</h3>
-                    <p className="text-sm text-slate-400">Click to download or open PDF resume</p>
-                  </div>
-                </motion.button>
-                <p className="text-slate-400 italic">Complete professional documentation available</p>
+                {Object.entries(data.content).map(([key, value]: [string, { text: string; icon: string; link: string }]) => (
+                  <motion.a
+                    key={key}
+                    href={value.link}
+                    className="inline-flex flex-col items-center space-y-4 p-8 bg-slate-800/60 border border-slate-600/50 rounded-xl hover:bg-slate-700/60 transition-all duration-300 group mx-auto"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (value.link === '#') {
+                        alert('Resume download will be implemented soon!');
+                      }
+                    }}
+                  >
+                    <div className="w-16 h-16 bg-amber-500/20 rounded-xl flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+                      <span className="text-3xl">{value.icon}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-200 mb-2">{key}</h3>
+                      <p className="text-sm text-slate-400">{value.text}</p>
+                    </div>
+                  </motion.a>
+                ))}
               </div>
             ) : (
               Object.entries(data.content).map(([key, value]) => (

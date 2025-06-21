@@ -11,15 +11,6 @@ interface SectionCardProps {
 }
 
 export function SectionCard({ title, icon: Icon, unlocked, onClick }: SectionCardProps) {
-  // Define preview content for each section
-  const sectionPreviews = {
-    'Skills': ['JavaScript', 'React', 'Python', 'Machine Learning'],
-    'Research': ['KV Cache Compression', 'SVD Decomposition', 'Memory Optimization'],
-    'Contact': ['bharadwajaadhav@gmail.com', 'GitHub', 'LinkedIn'],
-    'Resume': ['Computer Science', 'Full Stack Dev', 'AI Research']
-  };
-
-  const previewItems = sectionPreviews[title as keyof typeof sectionPreviews] || [];
   return (
     <motion.div
       className={`
@@ -83,12 +74,11 @@ export function SectionCard({ title, icon: Icon, unlocked, onClick }: SectionCar
         `}>
           {title}
         </h4>
-        
-        {/* Content Preview - Show only if unlocked and compact */}
+          {/* Content Preview - Show only if unlocked and compact */}
         {unlocked ? (
           <div className="mb-2">
             <div className="text-xs text-blue-400">
-              {previewItems.length > 0 ? `${previewItems.length} items` : 'Available'}
+              Available
             </div>
           </div>
         ) : (
