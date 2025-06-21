@@ -35,24 +35,14 @@ export function RPGHub() {
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const [hasCompletedOnce, setHasCompletedOnce] = useState(false);  // Show welcome messages on first load
   React.useEffect(() => {
-    if (!hasShownWelcome && terminalHistory.length === 0) {
-      // No delay - show welcome immediately
-      addTerminalEntry('🌟 === WELCOME TO THE DIGITAL REALM === 🌟');
-      addTerminalEntry('');
-      addTerminalEntry('🎭 You have entered Aadhav\'s Interactive Portfolio Hub');
-      addTerminalEntry('📍 Current Location: Central Command Center');
-      addTerminalEntry('🎯 Primary Mission: Discover projects, unlock skills, establish contact');
-      addTerminalEntry('');
-      addTerminalEntry('⚡ System Status: ONLINE | Exploration Mode: ACTIVE');
-      addTerminalEntry('🗺️  Available Pathways: 5 project realms await discovery');
-      addTerminalEntry('🔐 Advanced Systems: Locked (complete all projects to unlock)');
-      addTerminalEntry('');
-      addTerminalEntry('💡 Essential Commands:');
-      addTerminalEntry('   📖 "help" - Access command matrix');
-      addTerminalEntry('   🧭 "explore" - Receive navigation guidance');
-      addTerminalEntry('   🌍 Directional commands (north, east, south, west, northeast)');
-      addTerminalEntry('');
-      addTerminalEntry('🚀 Begin your digital odyssey! Type "help" to start.');
+    if (!hasShownWelcome && terminalHistory.length === 0) {      // No delay - show welcome immediately
+      addTerminalEntry('🌟 === DIGITAL REALM ACTIVE === 🌟');
+      addTerminalEntry('🎭 Welcome to Aadhav\'s Portfolio Hub');
+      addTerminalEntry('🎯 Mission: Discover projects & unlock skills');
+      addTerminalEntry('⚡ Status: ONLINE | 5 realms await');
+      addTerminalEntry('🔐 Advanced systems locked (complete projects first)');
+      addTerminalEntry('💡 Commands: "help" | "explore" | directionals');
+      addTerminalEntry('🚀 Type "help" to begin your quest!');
       setHasShownWelcome(true);
     }
   }, [hasShownWelcome, terminalHistory.length, addTerminalEntry]);
@@ -70,78 +60,34 @@ export function RPGHub() {
         completedProjects.includes(project.id)
       );
       
-      addTerminalEntry('🔮 === DIGITAL NAVIGATION COMPENDIUM === 🔮');
-      addTerminalEntry('');
+      addTerminalEntry('🔮 === COMMAND MATRIX === 🔮');
       if (!allDirectionalProjectsCompleted) {
         addTerminalEntry('⚔️  TIER 1 - PROJECT EXPLORATION:');
-        addTerminalEntry('   🧭 go north      → Venture to the northern realm');
-        addTerminalEntry('   🧭 go east       → Journey eastward to discovery'); 
-        addTerminalEntry('   🧭 go south      → Explore the southern territories');
-        addTerminalEntry('   🧭 go west       → Travel west to new horizons');
-        addTerminalEntry('   🧭 go northeast  → Ascend to the northeastern peaks');
-        addTerminalEntry('');
-        addTerminalEntry('🎯 Complete all directional quests to unlock TIER 2!');
+        addTerminalEntry('   🧭 go north/east/south/west/northeast');
+        addTerminalEntry('🎯 Complete all projects to unlock TIER 2!');
       } else {
-        addTerminalEntry('🔓 TIER 2 - ADVANCED SYSTEMS UNLOCKED:');
-        addTerminalEntry('   📦 check inventory      → Access skills matrix');
-        addTerminalEntry('   📜 consult the scrolls  → View research archives');
-        addTerminalEntry('   📡 display beacon       → Open contact channels');
-        addTerminalEntry('   📋 get apprenticeship   → Access resume vault');
+        addTerminalEntry('🔓 TIER 2 - ADVANCED SYSTEMS:');
+        addTerminalEntry('   📦 check inventory → skills');
+        addTerminalEntry('   📜 consult the scrolls → research');
+        addTerminalEntry('   📡 display beacon → contact');
+        addTerminalEntry('   📋 get apprenticeship → resume');
       }
-      addTerminalEntry('');
-      addTerminalEntry('🛠️  UTILITY COMMANDS:');
-      addTerminalEntry('   ❓ help          → Display this compendium');
-      addTerminalEntry('   🗺️  explore      → Get navigation tips & tricks');
-      addTerminalEntry('   🚀 start journey → Begin guided exploration');
-      addTerminalEntry('');
-      addTerminalEntry('════════════════════════════════════════');
+      addTerminalEntry('🛠️  UTILITY: help | explore | start journey');
     },    'start journey': () => {
-      addTerminalEntry('🚀 === INITIATING GUIDED EXPLORATION === 🚀');
-      addTerminalEntry('');
-      addTerminalEntry('🎯 Welcome to your personalized adventure through my portfolio!');
-      addTerminalEntry('');
-      addTerminalEntry('📋 MISSION BRIEFING:');
-      addTerminalEntry('   🎪 You are about to explore 5 unique projects');
-      addTerminalEntry('   🔓 Use terminal commands to unlock project paths');
-      addTerminalEntry('   🖱️  Click unlocked project icons to enter and explore');
-      addTerminalEntry('   ✅ Complete projects by viewing their full details');
-      addTerminalEntry('   🏆 Unlock advanced systems after exploring all projects');
-      addTerminalEntry('');
-      addTerminalEntry('🧭 RECOMMENDED PATH:');
-      addTerminalEntry('   1️⃣  "go north" → Unlock Palate project, then click to explore');
-      addTerminalEntry('   2️⃣  "go east" → Unlock ExpressInk, then click to explore');
-      addTerminalEntry('   3️⃣  "go south" → Unlock Premier League Analytics');
-      addTerminalEntry('   4️⃣  "go west" → Unlock Inventory360');
-      addTerminalEntry('   5️⃣  "go northeast" → Unlock Brickd');
-      addTerminalEntry('');
-      addTerminalEntry('💡 TIPS FOR SUCCESS:');
-      addTerminalEntry('   • Commands unlock paths, clicking enters projects');
-      addTerminalEntry('   • Take your time to read project descriptions');
-      addTerminalEntry('   • Use "help" anytime to see available commands');
-      addTerminalEntry('   • Advanced sections unlock sequentially after projects');
-      addTerminalEntry('');
-      addTerminalEntry('🌟 Ready to begin? Type "go north" to unlock your first path!');
-    },    'explore': () => {
+      addTerminalEntry('🚀 === GUIDED EXPLORATION === 🚀');
+      addTerminalEntry('🎯 Welcome to my interactive portfolio!');
+      addTerminalEntry('📋 MISSION: Unlock 5 projects → 4 advanced systems');
+      addTerminalEntry('🧭 PATH: Use directional commands to unlock projects');
+      addTerminalEntry('🖱️  Then click unlocked icons to explore details');
+      addTerminalEntry('💡 TIP: "go north" → click Palate icon → explore');
+      addTerminalEntry('🌟 Ready? Start with "go north" to unlock first project!');
+    },'explore': () => {
       addTerminalEntry('🗺️  === EXPLORER\'S GUIDE === 🗺️');
-      addTerminalEntry('');
-      addTerminalEntry('🎮 NAVIGATION TIPS:');
-      addTerminalEntry('   • Each direction command unlocks a unique project');
-      addTerminalEntry('   • Click unlocked project icons to enter and explore');
-      addTerminalEntry('   • Complete projects by viewing their details');
-      addTerminalEntry('   • Advanced systems unlock after all projects');
-      addTerminalEntry('');
-      addTerminalEntry('🏆 PROGRESSION SYSTEM:');
-      addTerminalEntry('   • TIER 1: Explore all 5 directional projects');
-      addTerminalEntry('   • TIER 2: Access 4 advanced information systems');
-      addTerminalEntry('   • COMPLETION: Unlock the final achievement screen');
-      addTerminalEntry('');
-      addTerminalEntry('💡 PRO TIPS:');
-      addTerminalEntry('   • Use "help" to see available commands');
-      addTerminalEntry('   • Commands unlock, clicks enter projects');
-      addTerminalEntry('   • Each project showcases different skills');
-      addTerminalEntry('   • Advanced systems contain detailed information');
-      addTerminalEntry('');
-      addTerminalEntry('🚀 Ready to start? Try "go north" to unlock your first project!');
+      addTerminalEntry('🎮 NAVIGATION: Use direction commands to unlock projects');
+      addTerminalEntry('🖱️  Click unlocked icons to enter & explore projects');
+      addTerminalEntry('🏆 PROGRESSION: 5 projects → 4 advanced systems → completion');
+      addTerminalEntry('💡 TIP: Commands unlock, clicks enter. Use "help" anytime!');
+      addTerminalEntry('🚀 Ready? Try "go north" to unlock your first project!');
     },'go north': () => handleDirectionalCommand('go north'),
     'go east': () => handleDirectionalCommand('go east'),
     'go south': () => handleDirectionalCommand('go south'),
@@ -314,37 +260,24 @@ export function RPGHub() {
           if (!completedProjects.includes(currentProject.id)) {
             completeProject(currentProject.id);
             addTerminalEntry(`✅ PROJECT MASTERED: ${currentProject.title}`);
-            addTerminalEntry(`🎯 Knowledge acquired and archived!`);
-              // Check if this completes Tier 1
+            addTerminalEntry(`🎯 Knowledge acquired and archived!`);            // Check if this completes Tier 1
             const newCompletedCount = completedProjects.length + 1;
             if (newCompletedCount === projects.length) {
               // Remove delay - show immediately
-              addTerminalEntry('');
-              addTerminalEntry('🎉 ═══ TIER 1 MASTERY ACHIEVED! ═══ 🎉');
-              addTerminalEntry('🗺️  All directional realms explored!');
-              addTerminalEntry('🔓 TIER 2 SYSTEMS NOW ONLINE!');
-              addTerminalEntry('💫 Advanced command matrix unlocked!');
-              addTerminalEntry('🎯 Type "help" to access your new abilities!');
-              addTerminalEntry('');
+              addTerminalEntry('🎉 === TIER 1 COMPLETE === 🎉');
+              addTerminalEntry(' TIER 2 systems now online! Type "help"');
             } else {
               // Give next step guidance for incomplete projects
               const remainingProjects = projects.filter(p => !completedProjects.includes(p.id) && p.id !== currentProject.id);
               if (remainingProjects.length > 0) {
                 // Remove delay - show immediately
-                addTerminalEntry('');
-                addTerminalEntry('🧭 === NEXT EXPLORATION TARGET === 🧭');
                 const nextProject = remainingProjects[0];
                 const unlockedRemaining = remainingProjects.filter(p => unlockedProjects.includes(p.id));
                     if (unlockedRemaining.length > 0) {
                     const nextUnlocked = unlockedRemaining[0];
-                    addTerminalEntry(`🎯 Ready to explore: ${nextUnlocked.title}`);
-                    addTerminalEntry(`🖱️  Click the ${nextUnlocked.title} icon to continue your journey!`);
-                  } else {
-                    addTerminalEntry(`🔐 Next target: ${nextProject.title}`);
-                    addTerminalEntry(`⚡ Use "${nextProject.direction}" to unlock this pathway`);
-                    addTerminalEntry(`📊 Progress: ${completedProjects.length + 1}/${projects.length} projects completed`);
+                    addTerminalEntry(`🎯 Next: Click ${nextUnlocked.title} to continue`);
+                  } else {                    addTerminalEntry(`🔐 Next: "${nextProject.direction}" to unlock ${nextProject.title}`);
                   }
-                  addTerminalEntry('');
               }
             }
           }
@@ -431,7 +364,7 @@ export function RPGHub() {
       {/* Subtle background pattern */}
       <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)]" style={{backgroundSize: '50px 50px'}}></div>
       
-      <div className="container mx-auto p-4 h-full flex flex-col relative z-10">
+      <div className="container mx-auto px-4 pt-4 h-full flex flex-col relative z-10">
         {/* Header - Compact */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -441,45 +374,76 @@ export function RPGHub() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2 tracking-tight">
             Aadhav&apos;s Portfolio
           </h1>
-          <p className="text-sm text-slate-400">Interactive Developer Experience</p>        </motion.div>
-
-        {/* Main Grid - Fixed height layout to prevent terminal shrinking */}
-        <div className="flex-1 flex gap-4 min-h-0 h-full">
-          {/* Left - Terminal - Fixed width, full height */}
+          <p className="text-sm text-slate-400">Interactive Developer Experience</p>        </motion.div>        {/* Main Grid - Fixed height layout to prevent terminal shrinking */}
+        <div className="flex-1 flex gap-3 min-h-0 h-full">          {/* Left - Terminal - Slightly bigger width, full height */}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="w-80 flex-shrink-0 h-full"
+            className="w-[30rem] flex-shrink-0 h-full"
           >
             <div className="h-full bg-slate-900/40 backdrop-blur-md border border-slate-700/50 rounded-lg p-4 flex flex-col">
               <h3 className="text-lg font-semibold mb-3 text-cyan-400 flex items-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2"></span>
                 Terminal
-              </h3>
-
-              <div className="flex-1 min-h-0">
+              </h3>              <div className="flex-1 min-h-0">
                 <TerminalSimple 
                   history={terminalHistory}
                   onCommand={handleCommand}
+                  quickCommands={(() => {                    const allProjectsCompleted = projects.every(project => 
+                      completedProjects.includes(project.id)
+                    );
+                    
+                    const commands = [
+                      { label: 'Help', command: 'help', icon: '❓' },
+                      { label: 'Explore', command: 'explore', icon: '🗺️' }
+                    ];if (allProjectsCompleted) {
+                      // Tier 2 commands - use actual command text
+                      commands.push(
+                        { label: 'check inventory', command: 'check inventory', icon: '📦' },
+                        { label: 'consult the scrolls', command: 'consult the scrolls', icon: '📜' },
+                        { label: 'display beacon', command: 'display beacon', icon: '📡' },
+                        { label: 'get apprenticeship', command: 'get apprenticeship', icon: '📋' }
+                      );
+                    } else {
+                      // Tier 1 commands - only show locked directions
+                      const availableDirections = [
+                        { direction: 'go north', label: 'North', icon: '⬆️' },
+                        { direction: 'go east', label: 'East', icon: '➡️' },
+                        { direction: 'go south', label: 'South', icon: '⬇️' },
+                        { direction: 'go west', label: 'West', icon: '⬅️' },
+                        { direction: 'go northeast', label: 'NE', icon: '↗️' }
+                      ];
+
+                      availableDirections.forEach(dir => {
+                        const project = projects.find(p => p.direction === dir.direction);
+                        if (project && !unlockedProjects.includes(project.id)) {
+                          commands.push({
+                            label: dir.label,
+                            command: dir.direction,
+                            icon: dir.icon
+                          });
+                        }
+                      });
+                    }
+
+                    return commands;
+                  })()}
                 />
               </div>
             </div>
-          </motion.div>
-
-          {/* Right Side - Project Hub and Advanced Cards - Scrollable if needed */}
-          <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto">            {/* Project Hub - Fixed height to prevent layout issues */}
+          </motion.div>          {/* Right Side - Project Hub and Advanced Cards - Fill remaining space */}
+          <div className="flex-1 flex flex-col gap-2 min-h-0">{/* Project Hub - Compact height */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-6 flex flex-col min-h-[400px]"
+              className="bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-4 flex flex-col"
             >
-              <h3 className="text-lg font-semibold mb-6 text-center text-slate-200 flex items-center justify-center">
+              <h3 className="text-lg font-semibold mb-4 text-center text-slate-200 flex items-center justify-center">
                 <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
                 Project Hub
                 <span className="w-2 h-2 bg-blue-400 rounded-full ml-2"></span>
-              </h3>
-                {/* Spacious Project Grid - 3x3 with larger icons and more padding */}
-              <div className="relative grid grid-cols-3 grid-rows-3 gap-6 max-w-md mx-auto place-items-center h-full content-center">
+              </h3>                {/* Project Grid - Better spacing */}
+              <div className="relative grid grid-cols-3 grid-rows-3 gap-6 max-w-sm mx-auto place-items-center mb-4">
                 {/* Animated Paths */}
                 <AnimatePresence>
                   {animatingPath && (
@@ -521,9 +485,8 @@ export function RPGHub() {
                   unlockedProjects={unlockedProjects}
                   completedProjects={completedProjects}
                   projectIcons={projectIcons}
-                />
-                <motion.div 
-                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 rounded-full h-14 w-14 border border-slate-600 shadow-lg"
+                />                <motion.div 
+                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 rounded-full h-10 w-10 border border-slate-600 shadow-lg"
                   whileHover={{ scale: 1.1 }}
                 >
                   <span className="text-xs font-semibold text-slate-300">HUB</span>
@@ -549,18 +512,20 @@ export function RPGHub() {
                 />
                 <div></div>
               </div>
-            </motion.div>            {/* Advanced Section Cards - Fixed height, always visible but disabled until all projects complete */}
+            </motion.div>            {/* Advanced Section Cards - Expand to fill space */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-4"
+              className="flex-1 bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-3 flex flex-col"
             >
-              <h3 className="text-lg font-semibold mb-4 text-center text-slate-200 flex items-center justify-center">
+              <h3 className="text-lg font-semibold mb-3 text-center text-slate-200 flex items-center justify-center">
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
                 Advanced Systems
                 <span className="w-2 h-2 bg-purple-400 rounded-full ml-2"></span>
-              </h3>              <div className="grid grid-cols-4 gap-4 justify-items-center">
+              </h3>
+                <div className="flex-1 flex items-center justify-center">
+                <div className="grid grid-cols-4 gap-6 justify-items-center">
                 <SectionCard 
                   title="Skills"
                   icon={Code}
@@ -587,18 +552,16 @@ export function RPGHub() {
                   icon={FileText}
                   unlocked={resumeUnlocked}
                   allProjectsCompleted={projects.every(project => completedProjects.includes(project.id))}
-                  onClick={() => handleSectionCardClick('resume')}
-                />
+                  onClick={() => handleSectionCardClick('resume')}                />
               </div>
-            </motion.div>
-
-            {/* Progress Bar - Compact at bottom */}
+              </div>
+            </motion.div>{/* Progress Bar - Compact */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3"
-            >              <div className="flex justify-between items-center mb-2">
+              className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-2"
+            >              <div className="flex justify-between items-center mb-1">
                 <span className="text-slate-300 text-sm">Progress</span>
                 <span className="text-cyan-400 text-sm font-medium">
                   {completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}/9
@@ -662,10 +625,9 @@ function ProjectIcon({
     };
 
     return (
-      <div className={`flex ${getLayoutClasses()} gap-2`}>
-        <motion.div
+      <div className={`flex ${getLayoutClasses()} gap-2`}>        <motion.div
           className={`
-            relative h-12 w-12 rounded-lg cursor-pointer
+            relative h-10 w-10 rounded-lg cursor-pointer
             flex items-center justify-center transition-all duration-200
             ${isCompleted 
               ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/25' 
@@ -679,12 +641,12 @@ function ProjectIcon({
           onClick={() => onClick(direction)}
         >
           <IconComponent 
-            size={20} 
+            size={18} 
             className={isCompleted ? 'text-green-100' : isUnlocked ? 'text-blue-100' : 'text-slate-300'} 
           />
           {isCompleted && (
             <motion.div
-              className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full flex items-center justify-center"
+              className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full flex items-center justify-center"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
             >
@@ -696,7 +658,7 @@ function ProjectIcon({
         {/* Project Name Label */}
         <motion.div
           className={`
-            px-2 py-1 rounded text-xs font-medium max-w-20 text-center
+            px-2 py-0.5 rounded text-xs font-medium max-w-18 text-center
             ${isCompleted 
               ? 'bg-green-900/60 text-green-300' 
               : isUnlocked 
@@ -726,10 +688,9 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
   const isAvailable = allProjectsCompleted;
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <motion.div
+    <div className="flex flex-col items-center gap-2">      <motion.div
         className={`
-          relative h-12 w-12 rounded-lg cursor-pointer
+          relative h-10 w-10 rounded-lg cursor-pointer
           flex items-center justify-center transition-all duration-200
           ${isClickable 
             ? 'bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/25' 
@@ -743,7 +704,7 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
         onClick={isClickable ? onClick : undefined}
       >
         <Icon 
-          size={20} 
+          size={18} 
           className={
             isClickable 
               ? 'text-cyan-100' 
@@ -754,7 +715,7 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
         />
         {isClickable && (
           <motion.div
-            className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full flex items-center justify-center"
+            className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-cyan-400 rounded-full flex items-center justify-center"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
           >
@@ -763,7 +724,7 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
         )}
         {!isAvailable && (
           <motion.div
-            className="absolute -top-1 -right-1 w-4 h-4 bg-slate-600 rounded-full flex items-center justify-center"
+            className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-slate-600 rounded-full flex items-center justify-center"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
           >
@@ -775,7 +736,7 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
       {/* Section Name Label */}
       <motion.div
         className={`
-          px-2 py-1 rounded text-xs font-medium max-w-20 text-center
+          px-2 py-0.5 rounded text-xs font-medium max-w-18 text-center
           ${isClickable 
             ? 'bg-cyan-900/60 text-cyan-300' 
             : isAvailable 

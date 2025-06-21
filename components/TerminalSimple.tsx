@@ -7,9 +7,10 @@ import { Send } from 'lucide-react';
 interface TerminalSimpleProps {
   history: string[];
   onCommand: (command: string) => void;
+  quickCommands?: { label: string; command: string; icon?: string }[];
 }
 
-export function TerminalSimple({ history, onCommand }: TerminalSimpleProps) {
+export function TerminalSimple({ history, onCommand, quickCommands = [] }: TerminalSimpleProps) {
   const [input, setInput] = useState('');
   const outputRef = useRef<HTMLDivElement>(null);
 
@@ -55,8 +56,27 @@ export function TerminalSimple({ history, onCommand }: TerminalSimpleProps) {
           >
             {line}
           </motion.div>
-        ))}
-      </div>
+        ))}      </div>
+
+      {/* Quick Command Buttons */}
+      {quickCommands.length > 0 && (
+        <div className="px-3 py-2 border-t border-slate-700/50 bg-slate-800/30">
+          <div className="flex flex-wrap gap-1">
+            {quickCommands.map((cmd, index) => (
+              <motion.button
+                key={index}
+                onClick={() => onCommand(cmd.command)}
+                className="px-2 py-1 text-xs bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 hover:border-slate-500/50 rounded text-slate-300 hover:text-cyan-300 transition-all duration-200 flex items-center gap-1"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {cmd.icon && <span>{cmd.icon}</span>}
+                {cmd.label}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Terminal Input */}
       <form onSubmit={handleSubmit} className="p-3 border-t border-slate-700/50">
