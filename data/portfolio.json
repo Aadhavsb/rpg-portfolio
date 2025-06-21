@@ -1,50 +1,46 @@
 {
-  "projects": [
-    {
+  "projects": [    {
       "id": "palate",
       "title": "Palate",
       "direction": "go north",
       "pathLabel": "Learn full stack SWE",
-      "description": "A full-stack MERN recipe generator that accepts text/image input and returns a complete recipe.",
+      "description": "Palate is a full-stack MERN (MongoDB, Express, React, Node.js) application that transforms user inputs—either natural language or uploaded food images—into complete recipes. The app supports authentication, dietary preference customization, and visualizes ingredients, steps, and images. It reflects my progression into building end-to-end intelligent web applications.",
       "githubUrl": "https://github.com/Aadhavsb/Palate",
       "unlocked": false,
       "completed": false
-    },
-    {
+    },    {
       "id": "expressink",
       "title": "ExpressInk",
       "direction": "go east",
       "pathLabel": "Hackathon project for a good cause",
-      "description": "AI-powered tool analyzing children's emotions from their drawings. Supports autism-focused screening.",
+      "description": "Built during a socially-driven hackathon, ExpressInk helps identify children's emotional states through their drawings using AI-powered computer vision. It leverages React for the interface and Node.js for backend logic. Designed to assist in autism screening, it showcases both technical and empathetic problem-solving skills.",
       "githubUrl": "https://github.com/Aadhavsb/ExpressInk",
       "unlocked": false,
       "completed": false
-    },
-    {
+    },    {
       "id": "premier-league",
       "title": "Premier League Predictor",
       "direction": "go south",
       "pathLabel": "Apply ML/AI & stats",
-      "description": "Machine learning model to predict Premier League outcomes using historical data and statistical inference.",
+      "description": "This project applies machine learning and statistical techniques to analyze historical Premier League data and forecast season outcomes. It demonstrates my capability to wrangle large datasets, extract meaningful patterns, and deploy predictive models with interpretability.",
       "githubUrl": "https://github.com/Aadhavsb/premier-league-predictor",
       "unlocked": false,
       "completed": false
-    },
-    {
+    },    {
       "id": "inventory360",
       "title": "Inventory360",
       "direction": "go west",
       "pathLabel": "Use your skills professionally",
-      "description": "Secure inventory system for 1000 users across 12 sites with an interactive, user-friendly frontend. Utilizes MongoDB, Zod validation, and robust auth.",
+      "description": "Inventory360 is a secure, scalable inventory management system designed for an organization with 12 distributed locations and over 1000 users. It features a highly interactive and user-friendly frontend, robust data validation using Zod, secure MongoDB integration, and a real-time asset tracking dashboard. It reflects my ability to build professional-grade software used by large, distributed teams.",
+      "githubUrl": "https://github.com/Aadhavsb/inventory360",
       "unlocked": false,
       "completed": false
-    },
-    {
+    },    {
       "id": "brickd",
-      "title": "Brick'd",
+      "title": "Brick'd Up",
       "direction": "go northeast",
       "pathLabel": "Explore your creative side",
-      "description": "C# platformer with an inventive twist. Fun and polished. Released on Itch.io.",
+      "description": "Brick'd is a 2D platformer built in C# using the Unity game engine, featuring inventive level mechanics and engaging gameplay. The game was built as part of a university team project and is now published on Itch.io. It reflects my creative instincts, ability to collaborate, and capacity to deliver polished, user-focused software.",
       "githubUrl": "https://github.com/Aadhavsb/SPRING2025ECSE290Team4",
       "demoUrl": "https://ecse-csds290.itch.io/brickdup",
       "unlocked": false,

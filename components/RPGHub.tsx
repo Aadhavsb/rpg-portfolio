@@ -6,6 +6,10 @@ import { useGameStore } from '@/lib/store';
 import { Project } from '@/lib/types';
 import { TerminalSimple } from './TerminalSimple';
 import { ProjectView } from './ProjectView';
+import { ProjectIcon } from './ProjectIcon';
+import { SectionCard } from './SectionCard';
+import { SectionView } from './SectionView';
+import { CompletionScreen } from './CompletionScreen';
 import { Mail, FileText, Brain, Zap, Code, Database, Palette } from 'lucide-react';
 
 type ViewState = 'hub' | 'project' | 'section';
@@ -39,6 +43,7 @@ export function RPGHub() {
     'inventory360': Database,
     'brickd': Code
   };
+
   // Command mappings with automatic path discovery
   const commandMap: { [key: string]: () => void } = {
     'help': () => {
@@ -86,6 +91,7 @@ export function RPGHub() {
       setAnimatingPath(null);
     }, 1000);
   };
+
   const handleSectionUnlock = (section: SectionType) => {
     // Check if Tier 1 (all directional projects) is completed
     const allDirectionalProjectsCompleted = projects.every(project => 
@@ -150,15 +156,34 @@ export function RPGHub() {
       case 'resume':
         setResumeUnlocked(true);
         addTerminalEntry('Apprenticeship documents materialized!');
+        // Check if this completes everything
+        setTimeout(() => {
+          addTerminalEntry('🎆 INCREDIBLE! You have unlocked everything!');
+          addTerminalEntry('🏆 PORTFOLIO MASTERY ACHIEVED! Welcome to the completion ceremony!');
+        }, 1000);
         break;
     }
-
+    
     setCurrentSection(section);
     setCurrentView('section');
-  };  const getRequiredProjectsForSection = (): string[] => {
+  };
+
+  const getRequiredProjectsForSection = (): string[] => {
     // For Tier 2, only require that all directional projects are completed
     // Individual sections don't need specific project completion, just sequential unlock
     return projects.map(p => p.id); // All directional projects
+  };
+
+  const getNextAvailableDirection = () => {
+    const directionsInOrder = ['go north', 'go east', 'go south', 'go west', 'go northeast'];
+    
+    for (const direction of directionsInOrder) {
+      const project = projects.find(p => p.direction === direction);
+      if (project && !completedProjects.includes(project.id)) {
+        return direction;
+      }
+    }
+    return null;
   };
 
   const handleCommand = (cmd: string) => {
@@ -175,6 +200,18 @@ export function RPGHub() {
   };
 
   const handleProjectIconClick = (direction: string) => {
+    const project = projects.find(p => p.direction === direction);
+    if (!project) {
+      addTerminalEntry(`No project found in that direction.`);
+      return;
+    }
+
+    // Check if project is unlocked before allowing navigation
+    if (!unlockedProjects.includes(project.id)) {
+      addTerminalEntry(`Project "${project.title}" hasn't been unlocked.`);
+      return;
+    }
+
     handleProjectNavigation(direction);
   };
 
@@ -191,6 +228,7 @@ export function RPGHub() {
       setCurrentView('section');
     }
   };
+
   // Project view
   if (currentView === 'project' && currentProject) {
     return (
@@ -230,58 +268,197 @@ export function RPGHub() {
         }}
       />
     );
-  }  // Main hub view
+  }
+
+  // Completion screen - when everything is done
+  const allCompleted = completedProjects.length === projects.length && 
+                      skillsUnlocked && researchUnlocked && contactUnlocked && resumeUnlocked;
+  
+  if (allCompleted) {
+    return <CompletionScreen onBack={() => setCurrentView('hub')} />;
+  }
+
+  // Main hub view
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)]" style={{backgroundSize: '50px 50px'}}></div>
+    <div className="h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-black text-gray-100 relative overflow-hidden">
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)]" style={{backgroundSize: '40px 40px'}}></div>
       
-      <div className="container mx-auto p-4 h-full flex flex-col relative z-10">
-        {/* Header - Compact */}
+      <div className="container mx-auto p-6 h-full flex flex-col relative z-10">
+        {/* Header - Clean and Professional */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-4"
+          className="text-center mb-6"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2 tracking-tight">
-            Aadhav&apos;s Portfolio
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2 tracking-tight">
+            Aadhav Bharadwaj
           </h1>
-          <p className="text-sm text-slate-400">Interactive Developer Experience</p>
-        </motion.div>        {/* Main Grid - Flex layout for better screen utilization */}
-        <div className="flex-1 flex gap-4 min-h-0">
-          {/* Left - Terminal */}
+          <p className="text-sm text-gray-400">Interactive Developer Portfolio</p>
+        </motion.div>
+
+        {/* Main Content Area - Fixed to prevent overlap */}
+        <div className="flex-1 flex gap-6 min-h-0 pb-4">
+          {/* Left - Terminal Column */}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="w-80 flex-shrink-0"
+            className="w-80 flex-shrink-0 flex flex-col gap-6"
           >
-            <div className="h-full bg-slate-900/40 backdrop-blur-md border border-slate-700/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold mb-3 text-cyan-400 flex items-center">
-                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2"></span>
+            {/* Terminal */}
+            <div className="flex-1 bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 flex flex-col shadow-2xl min-h-0">
+              <h3 className="text-lg font-semibold mb-3 text-blue-400 flex items-center">
+                <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
                 Terminal
               </h3>
-              <TerminalSimple 
-                history={terminalHistory}
-                onCommand={handleCommand}
-              />
+              
+              {/* Quick Command Buttons */}
+              <div className="mb-4 space-y-2">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">Quick Commands</div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleCommand('help')}
+                    className="px-3 py-1 text-xs bg-slate-800/60 border border-slate-600/50 rounded-md hover:bg-slate-700/60 transition-colors text-slate-300"
+                  >
+                    help
+                  </button>
+                  
+                  {/* Show next available direction */}
+                  {(() => {
+                    const nextDirection = getNextAvailableDirection();
+                    if (!nextDirection) return null;
+                    
+                    const buttonText = nextDirection.replace('go ', '');
+                    return (
+                      <button
+                        onClick={() => handleCommand(nextDirection)}
+                        className="px-3 py-1 text-xs bg-cyan-800/60 border border-cyan-600/50 rounded-md hover:bg-cyan-700/60 transition-colors text-cyan-300"
+                      >
+                        {buttonText}
+                      </button>
+                    );
+                  })()}
+                  
+                  {/* Advanced commands after all projects completed */}
+                  {completedProjects.length === projects.length && (
+                    <>
+                      {!skillsUnlocked && (
+                        <button
+                          onClick={() => handleCommand('check inventory')}
+                          className="px-3 py-1 text-xs bg-blue-800/60 border border-blue-600/50 rounded-md hover:bg-blue-700/60 transition-colors text-blue-300"
+                        >
+                          inventory
+                        </button>
+                      )}
+                      {skillsUnlocked && !researchUnlocked && (
+                        <button
+                          onClick={() => handleCommand('consult the scrolls')}
+                          className="px-3 py-1 text-xs bg-purple-800/60 border border-purple-600/50 rounded-md hover:bg-purple-700/60 transition-colors text-purple-300"
+                        >
+                          scrolls
+                        </button>
+                      )}
+                      {researchUnlocked && !contactUnlocked && (
+                        <button
+                          onClick={() => handleCommand('display beacon')}
+                          className="px-3 py-1 text-xs bg-green-800/60 border border-green-600/50 rounded-md hover:bg-green-700/60 transition-colors text-green-300"
+                        >
+                          beacon
+                        </button>
+                      )}
+                      {contactUnlocked && !resumeUnlocked && (
+                        <button
+                          onClick={() => handleCommand('get apprenticeship')}
+                          className="px-3 py-1 text-xs bg-amber-800/60 border border-amber-600/50 rounded-md hover:bg-amber-700/60 transition-colors text-amber-300"
+                        >
+                          apprenticeship
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex-1 min-h-0">
+                <TerminalSimple 
+                  history={terminalHistory}
+                  onCommand={handleCommand}
+                />
+              </div>
             </div>
+
+            {/* Advanced Section Cards - Only when available and with proper spacing */}
+            {(skillsUnlocked || researchUnlocked || contactUnlocked || resumeUnlocked) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 shadow-2xl"
+              >
+                <div className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
+                  Advanced Access
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {skillsUnlocked && (
+                      <SectionCard 
+                        title="Skills"
+                        icon={Code}
+                        unlocked={skillsUnlocked}
+                        command="check inventory"
+                        onClick={() => handleSectionCardClick('skills')}
+                      />
+                    )}
+                    {researchUnlocked && (
+                      <SectionCard 
+                        title="Research"
+                        icon={Brain}
+                        unlocked={researchUnlocked}
+                        command="consult the scrolls"
+                        onClick={() => handleSectionCardClick('research')}
+                      />
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {contactUnlocked && (
+                      <SectionCard 
+                        title="Contact"
+                        icon={Mail}
+                        unlocked={contactUnlocked}
+                        command="display beacon"
+                        onClick={() => handleSectionCardClick('contact')}
+                      />
+                    )}
+                    {resumeUnlocked && (
+                      <SectionCard 
+                        title="Resume"
+                        icon={FileText}
+                        unlocked={resumeUnlocked}
+                        command="get apprenticeship"
+                        onClick={() => handleSectionCardClick('resume')}
+                      />
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
-          {/* Center - Project Hub */}
+          {/* Right - Project Hub */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex-1 flex flex-col min-h-0"
           >
-            <div className="flex-1 bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-6 flex flex-col">
-              <h3 className="text-xl font-semibold mb-4 text-center text-slate-200 flex items-center justify-center">
-                <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+            <div className="flex-1 bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-8 flex flex-col shadow-2xl">
+              <h3 className="text-xl font-semibold mb-6 text-center text-slate-200 flex items-center justify-center">
+                <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></span>
                 Project Hub
-                <span className="w-2 h-2 bg-blue-400 rounded-full ml-2"></span>
+                <span className="w-2 h-2 bg-cyan-400 rounded-full ml-3"></span>
               </h3>
               
-              {/* Project Grid with Path Animations */}
-              <div className="relative grid grid-cols-5 grid-rows-5 gap-2 max-w-2xl mx-auto flex-1 place-items-center">
+              {/* Project Grid with Path Animations - Perfect Symmetry */}
+              <div className="relative grid grid-cols-3 grid-rows-3 gap-8 max-w-md mx-auto flex-1 place-items-center">
                 {/* Animated Paths */}
                 <AnimatePresence>
                   {animatingPath && (
@@ -295,21 +472,9 @@ export function RPGHub() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                {/* Animated Paths */}
-                <AnimatePresence>
-                  {animatingPath && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 pointer-events-none"
-                    >
-                      <PathAnimation direction={animatingPath} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>                {/* Project Icons in Grid */}
-                {/* Row 1 */}
-                <div></div>
+
+                {/* Project Icons in Perfect Symmetric Grid */}
+                {/* Row 1 - North and Northeast */}
                 <div></div>
                 <ProjectIcon 
                   project={projects.find(p => p.direction === 'go north')} 
@@ -319,7 +484,6 @@ export function RPGHub() {
                   completedProjects={completedProjects}
                   projectIcons={projectIcons}
                 />
-                <div></div>
                 <ProjectIcon 
                   project={projects.find(p => p.direction === 'go northeast')} 
                   direction="go northeast" 
@@ -329,15 +493,7 @@ export function RPGHub() {
                   projectIcons={projectIcons}
                 />
 
-                {/* Row 2 */}
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-
-                {/* Row 3 - Center row with HUB */}
-                <div></div>
+                {/* Row 2 - West, HUB, East */}
                 <ProjectIcon 
                   project={projects.find(p => p.direction === 'go west')} 
                   direction="go west" 
@@ -346,12 +502,20 @@ export function RPGHub() {
                   completedProjects={completedProjects}
                   projectIcons={projectIcons}
                 />
+                
                 <motion.div 
-                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 rounded-full h-12 w-12 border border-slate-600 shadow-lg"
-                  whileHover={{ scale: 1.1 }}
+                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 rounded-2xl h-16 w-16 border border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden relative"
+                  whileHover={{ scale: 1.05, rotateY: 5 }}
                 >
-                  <span className="text-xs font-semibold text-slate-300">HUB</span>
+                  {/* Premium Background Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 rounded-2xl" />
+                  
+                  <span className="text-sm font-semibold text-slate-200 relative z-10 tracking-wide">HUB</span>
+                  
+                  {/* Subtle Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300" />
                 </motion.div>
+                
                 <ProjectIcon 
                   project={projects.find(p => p.direction === 'go east')} 
                   direction="go east" 
@@ -360,17 +524,8 @@ export function RPGHub() {
                   completedProjects={completedProjects}
                   projectIcons={projectIcons}
                 />
-                <div></div>
 
-                {/* Row 4 */}
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-
-                {/* Row 5 */}
-                <div></div>
+                {/* Row 3 - South (centered) */}
                 <div></div>
                 <ProjectIcon 
                   project={projects.find(p => p.direction === 'go south')} 
@@ -381,75 +536,73 @@ export function RPGHub() {
                   projectIcons={projectIcons}
                 />
                 <div></div>
-                <div></div>
               </div>
             </div>
           </motion.div>
-        </div>        {/* Bottom - Section Cards - Compact Row */}
-        {(skillsUnlocked || researchUnlocked || contactUnlocked || resumeUnlocked) && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4 flex gap-3 justify-center"
-          >
-            {skillsUnlocked && (
-              <SectionCard 
-                title="Skills"
-                icon={Code}
-                unlocked={skillsUnlocked}
-                command="check inventory"
-                onClick={() => handleSectionCardClick('skills')}
-              />
-            )}
-            {researchUnlocked && (
-              <SectionCard 
-                title="Research"
-                icon={Brain}
-                unlocked={researchUnlocked}
-                command="consult the scrolls"
-                onClick={() => handleSectionCardClick('research')}
-              />
-            )}
-            {contactUnlocked && (
-              <SectionCard 
-                title="Contact"
-                icon={Mail}
-                unlocked={contactUnlocked}
-                command="display beacon"
-                onClick={() => handleSectionCardClick('contact')}
-              />
-            )}
-            {resumeUnlocked && (
-              <SectionCard 
-                title="Resume"
-                icon={FileText}
-                unlocked={resumeUnlocked}
-                command="get apprenticeship"
-                onClick={() => handleSectionCardClick('resume')}
-              />
-            )}
-          </motion.div>
-        )}
-
-        {/* Progress Bar - Minimal */}
+        </div>
+        
+        {/* Progress Bar - Fixed at bottom, never overlapping */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mt-4 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3"
+          className="bg-gradient-to-r from-slate-900/60 via-slate-800/80 to-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex-shrink-0"
         >
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-slate-300 text-sm">Progress</span>
-            <span className="text-cyan-400 text-sm font-medium">{completedProjects.length}/{projects.length}</span>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full"></div>
+              <span className="text-slate-200 text-sm font-semibold tracking-wide">Portfolio Progress</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-blue-400 text-sm font-bold">
+                {completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}
+              </span>
+              <span className="text-slate-400 text-sm">/</span>
+              <span className="text-slate-400 text-sm">{projects.length + 4}</span>
+              <span className="text-slate-500 text-xs">completed</span>
+            </div>
           </div>
-          <div className="w-full bg-slate-800 rounded-full h-2">
+          
+          <div className="relative w-full bg-slate-800/80 rounded-full h-3 overflow-hidden border border-slate-700/50">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-700/50 to-slate-600/50"></div>
+            
             <motion.div 
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full"
+              className="relative h-3 rounded-full bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 shadow-lg shadow-blue-500/30"
+              style={{
+                background: 'linear-gradient(90deg, #3B82F6 0%, #06B6D4 50%, #3B82F6 100%)'
+              }}
               initial={{ width: 0 }}
-              animate={{ width: `${(completedProjects.length / projects.length) * 100}%` }}
-              transition={{ duration: 1, delay: 0.5 }}
+              animate={{ 
+                width: `${((completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length) / (projects.length + 4)) * 100}%` 
+              }}
+              transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
             />
+            
+            {/* Progress Bar Shimmer Effect */}
+            <motion.div
+              className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: 1 }}
+              style={{ width: '50%' }}
+            />
+          </div>
+          
+          {/* Progress Details */}
+          <div className="flex justify-between items-center mt-3 text-xs">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-slate-400">Projects: {completedProjects.length}/{projects.length}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span className="text-slate-400">Advanced: {[skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}/4</span>
+              </div>
+            </div>
+            <div className="text-slate-500">
+              {Math.round(((completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length) / (projects.length + 4)) * 100)}% Complete
+            </div>
           </div>
         </motion.div>
       </div>
@@ -457,153 +610,21 @@ export function RPGHub() {
   );
 }
 
-// Project Icon Component
-function ProjectIcon({ 
-  project, 
-  direction, 
-  onClick, 
-  unlockedProjects, 
-  completedProjects, 
-  projectIcons 
-}: { 
-  project: Project | undefined; 
-  direction: string; 
-  onClick: (direction: string) => void;
-  unlockedProjects: string[];
-  completedProjects: string[];
-  projectIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>>;
-}) {
-    if (!project) return <div className="h-10 w-10"></div>;
-
-    const isUnlocked = unlockedProjects.includes(project.id);
-    const isCompleted = completedProjects.includes(project.id);
-    const IconComponent = projectIcons[project.id as keyof typeof projectIcons] || Code;
-
-    // Determine position for label based on direction
-    const getLayoutClasses = () => {
-      switch (direction) {
-        case 'go north':
-          return 'flex-col items-center';
-        case 'go south':
-          return 'flex-col-reverse items-center';
-        case 'go east':
-          return 'flex-row items-center';
-        case 'go west':
-          return 'flex-row-reverse items-center';
-        case 'go northeast':
-          return 'flex-col items-center';
-        default:
-          return 'flex-col items-center';
-      }
-    };
-
-    return (
-      <div className={`flex ${getLayoutClasses()} gap-2`}>
-        <motion.div
-          className={`
-            relative h-10 w-10 rounded-lg cursor-pointer
-            flex items-center justify-center transition-all duration-200
-            ${isCompleted 
-              ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/25' 
-              : isUnlocked 
-              ? 'bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/25' 
-              : 'bg-gradient-to-br from-slate-600 to-slate-700 hover:from-slate-500 hover:to-slate-600'
-            }
-          `}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onClick(direction)}
-        >
-          <IconComponent 
-            size={18} 
-            className={isCompleted ? 'text-green-100' : isUnlocked ? 'text-blue-100' : 'text-slate-300'} 
-          />
-          {isCompleted && (
-            <motion.div
-              className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full flex items-center justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-            >
-              <span className="text-green-900 text-xs font-bold">✓</span>
-            </motion.div>
-          )}
-        </motion.div>
-        
-        {/* Project Name Label */}
-        <motion.div
-          className={`
-            px-2 py-1 rounded text-xs font-medium max-w-20 text-center
-            ${isCompleted 
-              ? 'bg-green-900/60 text-green-300' 
-              : isUnlocked 
-              ? 'bg-blue-900/60 text-blue-300' 
-              : 'bg-slate-800/60 text-slate-400'
-            }
-          `}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          {project.title}
-        </motion.div>
-      </div>
-    );
-  }
-
-// Section Card Component
-function SectionCard({ title, icon: Icon, unlocked, command, onClick }: {
-  title: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  unlocked: boolean;
-  command: string;
-  onClick: () => void;
-}) {
-    return (
-      <motion.div
-        className={`
-          relative px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-3
-          ${unlocked 
-            ? 'bg-slate-800/60 border border-cyan-500/50 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30' 
-            : 'bg-slate-900/60 border border-slate-600/50 hover:border-slate-500'
-          }
-        `}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onClick}
-      >
-        <Icon 
-          size={16} 
-          className={unlocked ? 'text-cyan-400' : 'text-slate-500'} 
-        />
-        <span className={`text-sm font-medium ${unlocked ? 'text-slate-200' : 'text-slate-400'}`}>
-          {title}
-        </span>
-        {unlocked && (
-          <motion.div
-            className="w-2 h-2 bg-cyan-400 rounded-full"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-          />
-        )}
-      </motion.div>
-    );
-  }
-
 // Path Animation Component
 function PathAnimation({ direction }: { direction: string }) {
   const pathVariants = {
-    'go north': { x: 0, y: -100 },
-    'go east': { x: 100, y: 0 },
-    'go south': { x: 0, y: 100 },
-    'go west': { x: -100, y: 0 },
-    'go northeast': { x: 100, y: -100 }
+    'go north': { x: 0, y: -80 },
+    'go east': { x: 80, y: 0 },
+    'go south': { x: 0, y: 80 },
+    'go west': { x: -80, y: 0 },
+    'go northeast': { x: 80, y: -80 }
   };
 
   const movement = pathVariants[direction as keyof typeof pathVariants] || { x: 0, y: 0 };
 
   return (
     <motion.div
-      className="absolute top-1/2 left-1/2 w-2 h-2 bg-cyan-400 rounded-full"
+      className="absolute top-1/2 left-1/2 w-2 h-2 bg-cyan-400 rounded-full shadow-sm"
       initial={{ x: -4, y: -4, opacity: 0 }}
       animate={{ 
         x: movement.x - 4, 
@@ -612,112 +633,5 @@ function PathAnimation({ direction }: { direction: string }) {
       }}
       transition={{ duration: 1, ease: "easeInOut" }}
     />
-  );
-}
-
-// Section View Component
-function SectionView({ section, onBack }: { section: string; onBack: () => void }) {
-  const sectionData = {
-    skills: {
-      title: 'Skills Inventory',
-      icon: Code,
-      content: {
-        'Programming Languages': ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#'],
-        'Web Technologies': ['React', 'Next.js', 'Node.js', 'Express', 'Tailwind CSS', 'HTML/CSS'],
-        'Backend & Cloud': ['MongoDB', 'PostgreSQL', 'Docker', 'Git', 'AWS'],
-        'AI/ML': ['TensorFlow', 'Scikit-learn', 'Pandas', 'OpenAI API', 'Computer Vision']
-      }
-    },
-    research: {
-      title: 'Research Archives',
-      icon: Brain,
-      content: {
-        'Project': 'chunkedDecomp',
-        'Focus': 'Token-wise transformer KV Cache compression using SVD',
-        'Method': 'Dynamic-rank token compression with chunked fusion to minimize memory during inference',
-        'Deployment': 'Dockerized + GPU on HPC',
-        'Repository': 'github.com/Aadhavsb/chunkedDecomp'
-      }
-    },
-    contact: {
-      title: 'Contact Beacon',
-      icon: Mail,
-      content: {
-        'Email': 'bharadwajaadhav@gmail.com',
-        'GitHub': 'github.com/Aadhavsb',
-        'LinkedIn': 'linkedin.com/in/aadhav-bharadwaj'
-      }
-    },
-    resume: {
-      title: 'Apprenticeship Documents',
-      icon: FileText,
-      content: {
-        'Education': 'Computer Science',
-        'Experience': 'Full Stack Development',
-        'Research': 'Machine Learning & AI',
-        'Download': 'Resume.pdf [Available Soon]'
-      }
-    }
-  };
-
-  const data = sectionData[section as keyof typeof sectionData];
-  const Icon = data.icon;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 text-white p-8"
-    >
-      <div className="max-w-4xl mx-auto">
-        <motion.button
-          className="mb-8 px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:border-slate-500 transition-colors"
-          onClick={onBack}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          ← Back to Hub
-        </motion.button>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8"
-        >
-          <div className="flex items-center mb-8">
-            <Icon size={32} className="text-cyan-400" />
-            <h1 className="text-3xl font-bold ml-4">{data.title}</h1>
-          </div>
-
-          <div className="space-y-6">
-            {section === 'skills' ? (
-              Object.entries(data.content).map(([category, skills]) => (
-                <div key={category}>
-                  <h3 className="text-xl font-semibold text-cyan-400 mb-3">{category}</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {(skills as string[]).map((skill) => (
-                      <span
-                        key={skill}
-                        className="px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-slate-300"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              Object.entries(data.content).map(([key, value]) => (
-                <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                  <span className="text-cyan-400 font-semibold min-w-32">{key}:</span>
-                  <span className="text-slate-300">{value}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </motion.div>
   );
 }
