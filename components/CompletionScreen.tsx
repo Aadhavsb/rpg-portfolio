@@ -101,13 +101,11 @@ export function CompletionScreen({ onBack }: CompletionScreenProps) {
           <div className="text-lg text-blue-400 font-semibold">
             🚀 Ready to build something together?
           </div>
-        </motion.div>
-
-        <motion.div
+        </motion.div>        <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-8 space-y-4"
+          className="mt-8"
         >
           <motion.button
             className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-2xl shadow-blue-500/25 transition-all duration-300"
@@ -117,23 +115,6 @@ export function CompletionScreen({ onBack }: CompletionScreenProps) {
           >
             Return to Portfolio Hub
           </motion.button>
-          
-          <div className="flex justify-center space-x-6 mt-6">
-            <a 
-              href="mailto:bharadwajaadhav@gmail.com"
-              className="px-6 py-3 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-lg transition-all duration-300 border border-slate-600/50 hover:border-slate-500"
-            >
-              📧 Get in Touch
-            </a>
-            <a 
-              href="https://github.com/Aadhavsb"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 hover:text-white rounded-lg transition-all duration-300 border border-slate-600/50 hover:border-slate-500"
-            >
-              🔗 GitHub
-            </a>
-          </div>
         </motion.div>
       </div>
     </motion.div>

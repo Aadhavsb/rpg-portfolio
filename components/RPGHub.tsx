@@ -9,7 +9,7 @@ import { ProjectView } from './ProjectView';
 import { SkillIcon } from './SkillIcon';
 import { ContactIcon } from './ContactIcon';
 import { CompletionScreen } from './CompletionScreen';
-import { Mail, FileText, Brain, Zap, Code, Database, Palette } from 'lucide-react';
+import { Mail, FileText, Brain, Zap, Code, Database, Palette, ArrowLeft, CheckCircle, Github, ExternalLink } from 'lucide-react';
 
 type ViewState = 'hub' | 'project' | 'section';
 type SectionType = 'skills' | 'research' | 'contact' | 'resume';
@@ -24,7 +24,6 @@ export function RPGHub() {
     unlockedProjects,
     completedProjects
   } = useGameStore();
-
   const [currentView, setCurrentView] = useState<ViewState>('hub');
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [currentSection, setCurrentSection] = useState<SectionType | null>(null);
@@ -32,25 +31,28 @@ export function RPGHub() {
   const [researchUnlocked, setResearchUnlocked] = useState(false);
   const [contactUnlocked, setContactUnlocked] = useState(false);
   const [resumeUnlocked, setResumeUnlocked] = useState(false);
-  const [animatingPath, setAnimatingPath] = useState<string | null>(null);  const [hasShownWelcome, setHasShownWelcome] = useState(false);
-  // Show welcome messages on first load
+  const [animatingPath, setAnimatingPath] = useState<string | null>(null);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
+  const [hasCompletedOnce, setHasCompletedOnce] = useState(false);  // Show welcome messages on first load
   React.useEffect(() => {
     if (!hasShownWelcome && terminalHistory.length === 0) {
-      setTimeout(() => {
-        addTerminalEntry('� === WELCOME TO THE DIGITAL REALM === 🌟');
+      setTimeout(() => {addTerminalEntry('🌟 === WELCOME TO THE DIGITAL REALM === 🌟');
         addTerminalEntry('');
         addTerminalEntry('🎭 You have entered Aadhav\'s Interactive Portfolio Hub');
-        addTerminalEntry('📍 Location: Central Command Center');
-        addTerminalEntry('🎯 Mission: Discover projects, skills, and connect');
+        addTerminalEntry('📍 Current Location: Central Command Center');
+        addTerminalEntry('🎯 Primary Mission: Discover projects, unlock skills, establish contact');
         addTerminalEntry('');
-        addTerminalEntry('💡 Quick Start Commands:');
-        addTerminalEntry('   • Type "help" - View all available commands');
-        addTerminalEntry('   • Type "explore" - Get exploration tips');
-        addTerminalEntry('   • Use directional commands to navigate projects');
+        addTerminalEntry('⚡ System Status: ONLINE | Exploration Mode: ACTIVE');
+        addTerminalEntry('🗺️  Available Pathways: 5 project realms await discovery');
+        addTerminalEntry('🔐 Advanced Systems: Locked (complete all projects to unlock)');
         addTerminalEntry('');
-        addTerminalEntry('🚀 Ready to begin your journey? Start with "help"');
+        addTerminalEntry('💡 Essential Commands:');
+        addTerminalEntry('   📖 "help" - Access command matrix');
+        addTerminalEntry('   🧭 "explore" - Receive navigation guidance');
+        addTerminalEntry('   🌍 Directional commands (north, east, south, west, northeast)');
+        addTerminalEntry('');        addTerminalEntry('🚀 Begin your digital odyssey! Type "help" to start.');
         setHasShownWelcome(true);
-      }, 1000);
+      }, 300);
     }
   }, [hasShownWelcome, terminalHistory.length, addTerminalEntry]);
 
@@ -62,8 +64,7 @@ export function RPGHub() {
     'inventory360': Database,
     'brickd': Code
   };  // Command mappings with automatic path discovery
-  const commandMap: { [key: string]: () => void } = {
-    'help': () => {
+  const commandMap: { [key: string]: () => void } = {    'help': () => {
       const allDirectionalProjectsCompleted = projects.every(project => 
         completedProjects.includes(project.id)
       );
@@ -88,17 +89,43 @@ export function RPGHub() {
       }
       addTerminalEntry('');
       addTerminalEntry('🛠️  UTILITY COMMANDS:');
-      addTerminalEntry('   ❓ help     → Display this compendium');
-      addTerminalEntry('   🗺️  explore → Get navigation tips & tricks');
+      addTerminalEntry('   ❓ help          → Display this compendium');
+      addTerminalEntry('   🗺️  explore      → Get navigation tips & tricks');
+      addTerminalEntry('   🚀 start journey → Begin guided exploration');
       addTerminalEntry('');
       addTerminalEntry('════════════════════════════════════════');
-    },
-    'explore': () => {
+    },    'start journey': () => {
+      addTerminalEntry('🚀 === INITIATING GUIDED EXPLORATION === 🚀');
+      addTerminalEntry('');
+      addTerminalEntry('🎯 Welcome to your personalized adventure through my portfolio!');
+      addTerminalEntry('');
+      addTerminalEntry('📋 MISSION BRIEFING:');
+      addTerminalEntry('   🎪 You are about to explore 5 unique projects');
+      addTerminalEntry('   🔓 Use terminal commands to unlock project paths');
+      addTerminalEntry('   🖱️  Click unlocked project icons to enter and explore');
+      addTerminalEntry('   ✅ Complete projects by viewing their full details');
+      addTerminalEntry('   🏆 Unlock advanced systems after exploring all projects');
+      addTerminalEntry('');
+      addTerminalEntry('🧭 RECOMMENDED PATH:');
+      addTerminalEntry('   1️⃣  "go north" → Unlock Palate project, then click to explore');
+      addTerminalEntry('   2️⃣  "go east" → Unlock ExpressInk, then click to explore');
+      addTerminalEntry('   3️⃣  "go south" → Unlock Premier League Analytics');
+      addTerminalEntry('   4️⃣  "go west" → Unlock Inventory360');
+      addTerminalEntry('   5️⃣  "go northeast" → Unlock Brickd');
+      addTerminalEntry('');
+      addTerminalEntry('💡 TIPS FOR SUCCESS:');
+      addTerminalEntry('   • Commands unlock paths, clicking enters projects');
+      addTerminalEntry('   • Take your time to read project descriptions');
+      addTerminalEntry('   • Use "help" anytime to see available commands');
+      addTerminalEntry('   • Advanced sections unlock sequentially after projects');
+      addTerminalEntry('');
+      addTerminalEntry('🌟 Ready to begin? Type "go north" to unlock your first path!');
+    },    'explore': () => {
       addTerminalEntry('🗺️  === EXPLORER\'S GUIDE === 🗺️');
       addTerminalEntry('');
       addTerminalEntry('🎮 NAVIGATION TIPS:');
-      addTerminalEntry('   • Each direction leads to a unique project');
-      addTerminalEntry('   • Projects unlock automatically when you visit them');
+      addTerminalEntry('   • Each direction command unlocks a unique project');
+      addTerminalEntry('   • Click unlocked project icons to enter and explore');
       addTerminalEntry('   • Complete projects by viewing their details');
       addTerminalEntry('   • Advanced systems unlock after all projects');
       addTerminalEntry('');
@@ -109,50 +136,16 @@ export function RPGHub() {
       addTerminalEntry('');
       addTerminalEntry('💡 PRO TIPS:');
       addTerminalEntry('   • Use "help" to see available commands');
+      addTerminalEntry('   • Commands unlock, clicks enter projects');
       addTerminalEntry('   • Each project showcases different skills');
       addTerminalEntry('   • Advanced systems contain detailed information');
       addTerminalEntry('');
-      addTerminalEntry('🚀 Ready to start? Try "go north" to begin!');
-    },    'go north': () => {
-      const project = projects.find(p => p.direction === 'go north');
-      if (project && !unlockedProjects.includes(project.id)) {
-        unlockProject(project.id);
-        addTerminalEntry('🔓 Northern pathway unlocked! Project discovered.');
-      }
-      handleProjectNavigation('go north');
-    },
-    'go east': () => {
-      const project = projects.find(p => p.direction === 'go east');
-      if (project && !unlockedProjects.includes(project.id)) {
-        unlockProject(project.id);
-        addTerminalEntry('🔓 Eastern gateway opened! New project revealed.');
-      }
-      handleProjectNavigation('go east');
-    },
-    'go south': () => {
-      const project = projects.find(p => p.direction === 'go south');
-      if (project && !unlockedProjects.includes(project.id)) {
-        unlockProject(project.id);
-        addTerminalEntry('🔓 Southern route established! Project accessible.');
-      }
-      handleProjectNavigation('go south');
-    },
-    'go west': () => {
-      const project = projects.find(p => p.direction === 'go west');
-      if (project && !unlockedProjects.includes(project.id)) {
-        unlockProject(project.id);
-        addTerminalEntry('🔓 Western passage cleared! Project unlocked.');
-      }
-      handleProjectNavigation('go west');
-    },
-    'go northeast': () => {
-      const project = projects.find(p => p.direction === 'go northeast');
-      if (project && !unlockedProjects.includes(project.id)) {
-        unlockProject(project.id);
-        addTerminalEntry('🔓 Northeastern summit reached! Project discovered.');
-      }
-      handleProjectNavigation('go northeast');
-    },
+      addTerminalEntry('🚀 Ready to start? Try "go north" to unlock your first project!');
+    },'go north': () => handleDirectionalCommand('go north'),
+    'go east': () => handleDirectionalCommand('go east'),
+    'go south': () => handleDirectionalCommand('go south'),
+    'go west': () => handleDirectionalCommand('go west'),
+    'go northeast': () => handleDirectionalCommand('go northeast'),
     'check inventory': () => handleSectionUnlock('skills'),
     'consult the scrolls': () => handleSectionUnlock('research'),
     'display beacon': () => handleSectionUnlock('contact'),
@@ -164,25 +157,46 @@ export function RPGHub() {
       return;
     }
 
-    // Check if project is unlocked before allowing navigation
-    if (!unlockedProjects.includes(project.id)) {
-      addTerminalEntry(`🔒 The path ${direction.replace('go ', '')} remains sealed. Use the command "${direction}" to unlock it first.`);
-      return;
-    }
-
     // Animate path with immersive messaging
     setAnimatingPath(direction);
     const directionName = direction.replace('go ', '');
     addTerminalEntry(`✨ Initiating transport to ${directionName} sector...`);
     addTerminalEntry(`🌀 Portal energy building... ${project.title} awaits!`);
-    
-    // Show project after animation
+      // Show project after animation
     setTimeout(() => {
       setCurrentProject(project);
       setCurrentView('project');
       setAnimatingPath(null);
-    }, 1000);
+    }, 800);
   };
+  const handleDirectionalCommand = (direction: string) => {
+    const project = projects.find(p => p.direction === direction);
+    if (!project) {
+      addTerminalEntry('🚫 No pathway exists in that direction. Check your compass!');
+      return;
+    }
+
+    // If already unlocked, show navigation hint
+    if (unlockedProjects.includes(project.id)) {
+      const directionName = direction.replace('go ', '');
+      addTerminalEntry(`✨ ${directionName.charAt(0).toUpperCase() + directionName.slice(1)} pathway is already accessible!`);
+      addTerminalEntry(`🎯 Click the ${project.title} icon to enter the project realm.`);
+      return;
+    }
+
+    // Otherwise unlock but don't auto-navigate
+    unlockProject(project.id);
+    const directionName = direction.replace('go ', '');
+    const unlockMessages = {
+      'go north': '🔓 Northern pathway unlocked! Project discovered.',
+      'go east': '🔓 Eastern gateway opened! New project revealed.',
+      'go south': '🔓 Southern route established! Project accessible.',
+      'go west': '🔓 Western passage cleared! Project unlocked.',
+      'go northeast': '🔓 Northeastern summit reached! Project discovered.'
+    };    addTerminalEntry(unlockMessages[direction as keyof typeof unlockMessages] || `🔓 ${directionName} pathway unlocked!`);
+    addTerminalEntry(`🎯 Click the ${project.title} icon above to explore this project!`);
+  };
+
   const handleSectionUnlock = (section: SectionType) => {
     // Check if Tier 1 (all directional projects) is completed
     const allDirectionalProjectsCompleted = projects.every(project => 
@@ -270,8 +284,17 @@ export function RPGHub() {
       addTerminalEntry(`💡 Try "help" for available commands or "explore" for tips!`);
     }
   };
-
   const handleProjectIconClick = (direction: string) => {
+    const project = projects.find(p => p.direction === direction);
+    if (!project) return;
+
+    if (!unlockedProjects.includes(project.id)) {
+      const directionName = direction.replace('go ', '');
+      addTerminalEntry(`🔒 ${project.title} is locked! Use "${direction}" to unlock this pathway.`);
+      return;
+    }
+
+    // Project is unlocked, proceed with navigation
     handleProjectNavigation(direction);
   };
 
@@ -292,8 +315,7 @@ export function RPGHub() {
   if (currentView === 'project' && currentProject) {
     return (
       <ProjectView 
-        project={currentProject} 
-        onBack={() => {          // Mark project as completed when returning from project view
+        project={currentProject}        onBack={() => {          // Mark project as completed when returning from project view
           if (!completedProjects.includes(currentProject.id)) {
             completeProject(currentProject.id);
             addTerminalEntry(`✅ PROJECT MASTERED: ${currentProject.title}`);
@@ -311,6 +333,28 @@ export function RPGHub() {
                 addTerminalEntry('🎯 Type "help" to access your new abilities!');
                 addTerminalEntry('');
               }, 500);
+            } else {
+              // Give next step guidance for incomplete projects
+              const remainingProjects = projects.filter(p => !completedProjects.includes(p.id) && p.id !== currentProject.id);
+              if (remainingProjects.length > 0) {
+                setTimeout(() => {
+                  addTerminalEntry('');
+                  addTerminalEntry('🧭 === NEXT EXPLORATION TARGET === 🧭');
+                  const nextProject = remainingProjects[0];
+                  const unlockedRemaining = remainingProjects.filter(p => unlockedProjects.includes(p.id));
+                  
+                  if (unlockedRemaining.length > 0) {
+                    const nextUnlocked = unlockedRemaining[0];
+                    addTerminalEntry(`🎯 Ready to explore: ${nextUnlocked.title}`);
+                    addTerminalEntry(`🖱️  Click the ${nextUnlocked.title} icon to continue your journey!`);
+                  } else {
+                    addTerminalEntry(`🔐 Next target: ${nextProject.title}`);
+                    addTerminalEntry(`⚡ Use "${nextProject.direction}" to unlock this pathway`);
+                    addTerminalEntry(`📊 Progress: ${completedProjects.length + 1}/${projects.length} projects completed`);
+                  }
+                  addTerminalEntry('');
+                }, 800);
+              }
             }
           }
           setCurrentProject(null);
@@ -320,28 +364,82 @@ export function RPGHub() {
     );
   }
   // Section view
-  if (currentView === 'section' && currentSection) {    return (
-      <SectionView 
+  if (currentView === 'section' && currentSection) {    return (      <SectionView 
         section={currentSection}
-        onBack={() => {
+        skillsUnlocked={skillsUnlocked}
+        researchUnlocked={researchUnlocked}
+        contactUnlocked={contactUnlocked}
+        resumeUnlocked={resumeUnlocked}onBack={() => {
+          // Show next step guidance when returning from sections
+          const sectionOrder: SectionType[] = ['skills', 'research', 'contact', 'resume'];
+          const currentIndex = sectionOrder.indexOf(currentSection!);
+          const nextSection = sectionOrder[currentIndex + 1];
+          
+          if (nextSection) {
+            const nextCommands = {
+              'research': 'consult the scrolls',
+              'contact': 'display beacon', 
+              'resume': 'get apprenticeship'
+            };
+            const nextSectionTitles = {
+              'research': 'Research Archives',
+              'contact': 'Contact Channels',
+              'resume': 'Resume Vault'
+            };
+            
+            setTimeout(() => {
+              addTerminalEntry('');
+              addTerminalEntry('🔄 === RETURNING TO COMMAND CENTER === 🔄');
+              addTerminalEntry(`🎯 Next unlock available: ${nextSectionTitles[nextSection as keyof typeof nextSectionTitles]}`);
+              addTerminalEntry(`⚡ Command: "${nextCommands[nextSection as keyof typeof nextCommands]}"`);
+              addTerminalEntry('');
+            }, 300);
+          } else {
+            // All sections unlocked
+            setTimeout(() => {
+              addTerminalEntry('');
+              addTerminalEntry('🎉 === ALL SYSTEMS FULLY EXPLORED === 🎉');
+              addTerminalEntry('🏆 You have mastered every aspect of this portfolio!');
+              addTerminalEntry('✨ Feel free to re-explore any section anytime');
+              addTerminalEntry('');
+            }, 300);
+          }
+          
           setCurrentSection(null);
           setCurrentView('hub');
-        }}        onNavigateToSection={(section: string) => {
+        }}onNavigateToSection={(section: string) => {
           setCurrentSection(section as SectionType);
           setCurrentView('section');
         }}
-      />
-    );
-  }  // Check for completion - all projects completed and all sections unlocked
+      />    );
+  }
+
+  // Check for completion - all projects completed and all sections unlocked
   const allCompleted = completedProjects.length === projects.length && 
                       skillsUnlocked && researchUnlocked && contactUnlocked && resumeUnlocked;
-    if (allCompleted) {
+    
+  // Show completion screen only if completed and hasn't been dismissed
+  if (allCompleted && !hasCompletedOnce) {
     return <CompletionScreen onBack={() => {
-      // Reset only view state, preserve advanced section unlock state
+      // Mark completion as seen and return to hub
+      setHasCompletedOnce(true);
       setCurrentView('hub');
       setCurrentProject(null);
       setCurrentSection(null);
-      setAnimatingPath(null);
+      setAnimatingPath(null);      // Show welcome back message
+      setTimeout(() => {
+        addTerminalEntry('');
+        addTerminalEntry('🎉 === WELCOME BACK, MASTER EXPLORER! === 🎉');
+        addTerminalEntry('');
+        addTerminalEntry('✨ You have returned to the fully unlocked Hub');
+        addTerminalEntry('🏆 Status: GRANDMASTER - All systems accessible');
+        addTerminalEntry('🌟 Experience Level: Maximum');
+        addTerminalEntry('');
+        addTerminalEntry('🎯 All pathways remain open for re-exploration');
+        addTerminalEntry('📚 Advanced systems ready for your command');
+        addTerminalEntry('');
+        addTerminalEntry('💡 Type "help" to see your full command matrix');
+      }, 300);
       // Keep advanced sections unlocked: skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked
       // Don't reset hasShownWelcome to avoid re-showing welcome message
     }} />;
@@ -480,8 +578,8 @@ export function RPGHub() {
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-2"></span>
                 Advanced Systems
                 <span className="w-2 h-2 bg-purple-400 rounded-full ml-2"></span>
-              </h3>
-                <div className="grid grid-cols-2 gap-3">                <SectionCard 
+              </h3>              <div className="grid grid-cols-4 gap-4 justify-items-center">
+                <SectionCard 
                   title="Skills"
                   icon={Code}
                   unlocked={skillsUnlocked}
@@ -642,56 +740,76 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
   allProjectsCompleted: boolean;
   onClick: () => void;
 }) {
-    const isClickable = unlocked;
-    const isAvailable = allProjectsCompleted;
+  const isClickable = unlocked;
+  const isAvailable = allProjectsCompleted;
 
-    return (
+  return (
+    <div className="flex flex-col items-center gap-2">
       <motion.div
         className={`
-          relative px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm
+          relative h-12 w-12 rounded-lg cursor-pointer
+          flex items-center justify-center transition-all duration-200
           ${isClickable 
-            ? 'bg-slate-800/60 border border-cyan-500/50 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30 cursor-pointer' 
+            ? 'bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/25' 
             : isAvailable 
-            ? 'bg-slate-800/40 border border-slate-600/50 hover:border-slate-500 cursor-pointer'
-            : 'bg-slate-900/60 border border-slate-700/50 cursor-not-allowed opacity-60'
+            ? 'bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg shadow-slate-500/25 hover:from-slate-400 hover:to-slate-500' 
+            : 'bg-gradient-to-br from-slate-700 to-slate-800 cursor-not-allowed opacity-60'
           }
         `}
-        whileHover={isAvailable ? { scale: 1.02 } : {}}
-        whileTap={isClickable ? { scale: 0.98 } : {}}
+        whileHover={isAvailable ? { scale: 1.05 } : {}}
+        whileTap={isClickable ? { scale: 0.95 } : {}}
         onClick={isClickable ? onClick : undefined}
       >
         <Icon 
-          size={14} 
+          size={20} 
           className={
             isClickable 
-              ? 'text-cyan-400' 
+              ? 'text-cyan-100' 
               : isAvailable 
-              ? 'text-slate-400' 
-              : 'text-slate-600'
+              ? 'text-slate-200' 
+              : 'text-slate-500'
           } 
         />
-        <span                className={
-                  isClickable 
-                    ? 'text-slate-200 font-medium' 
-                    : isAvailable 
-                    ? 'text-slate-400' 
-                    : 'text-slate-600'
-                }>
-          {title}
-        </span>
         {isClickable && (
           <motion.div
-            className="w-2 h-2 bg-cyan-400 rounded-full ml-auto"
+            className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full flex items-center justify-center"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-          />
+          >
+            <span className="text-cyan-900 text-xs font-bold">✓</span>
+          </motion.div>
         )}
         {!isAvailable && (
-          <span className="text-xs text-slate-600 ml-auto">🔒</span>
+          <motion.div
+            className="absolute -top-1 -right-1 w-4 h-4 bg-slate-600 rounded-full flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+          >
+            <span className="text-slate-400 text-xs">🔒</span>
+          </motion.div>
         )}
       </motion.div>
-    );
-  }
+      
+      {/* Section Name Label */}
+      <motion.div
+        className={`
+          px-2 py-1 rounded text-xs font-medium max-w-20 text-center
+          ${isClickable 
+            ? 'bg-cyan-900/60 text-cyan-300' 
+            : isAvailable 
+            ? 'bg-slate-800/60 text-slate-400' 
+            : 'bg-slate-900/60 text-slate-600'
+          }
+        `}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        {title}
+      </motion.div>
+    </div>
+  );
+}
 
 // Path Animation Component
 function PathAnimation({ direction }: { direction: string }) {
@@ -720,34 +838,61 @@ function PathAnimation({ direction }: { direction: string }) {
 }
 
 // Section View Component
-function SectionView({ section, onBack, onNavigateToSection }: { 
+function SectionView({ 
+  section, 
+  onBack, 
+  onNavigateToSection,
+  skillsUnlocked,
+  researchUnlocked,
+  contactUnlocked,
+  resumeUnlocked
+}: { 
   section: string; 
   onBack: () => void;
   onNavigateToSection?: (section: string) => void;
-}) {const sectionData = {
+  skillsUnlocked: boolean;
+  researchUnlocked: boolean;
+  contactUnlocked: boolean;
+  resumeUnlocked: boolean;
+}) {
+  const sectionData = {
     skills: {
       title: 'Skills Inventory',
-      icon: Code,      content: {
+      pathLabel: 'Advanced System Module',
+      direction: 'Technology Stack Overview',
+      icon: Code,
+      content: {
         'Programming Languages': ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#', 'C', 'R'],
         'Web Technologies': ['React', 'Next.js', 'Node.js', 'Express', 'Tailwind CSS', 'HTML/CSS']
       }
-    },    research: {
+    },
+    research: {
       title: 'Research',
-      icon: Brain,      content: {
+      pathLabel: 'Advanced System Module',
+      direction: 'Current Investigation',
+      icon: Brain,
+      content: {
         description: 'I am investigating KV cache compression for large language models—specifically through chunk-wise singular value decomposition (SVD) and dynamic token-rank strategies. The work combines mathematical exploration, GPU-accelerated computation, and high-performance system design to make inference more memory-efficient without degrading output quality. This research is deployed across Dockerized environments in HPC clusters.',
         repository: 'chunkedDecomp'
       }
-    },    contact: {
+    },
+    contact: {
       title: 'Contact',
+      pathLabel: 'Advanced System Module',
+      direction: 'Communication Channels',
       icon: Mail,
       content: {
         'Email': 'bharadwajaadhav@gmail.com',
         'GitHub': 'github.com/Aadhavsb',
         'LinkedIn': 'linkedin.com/in/aadhav-bharadwaj'
       }
-    },resume: {
+    },
+    resume: {
       title: 'Resume',
-      icon: FileText,      content: {
+      pathLabel: 'Advanced System Module',
+      direction: 'Professional Documentation',
+      icon: FileText,
+      content: {
         description: 'Access resume containing detailed experience, education, certifications, and comprehensive skills inventory.',
         downloadText: 'Download PDF Resume',
         status: 'Available Soon'
@@ -757,50 +902,99 @@ function SectionView({ section, onBack, onNavigateToSection }: {
 
   const data = sectionData[section as keyof typeof sectionData];
   const Icon = data.icon;
+  
+  // Use the individual section unlocked states from the parent component
+  const isAccessed = section === 'skills' ? skillsUnlocked :
+                    section === 'research' ? researchUnlocked :
+                    section === 'contact' ? contactUnlocked :
+                    section === 'resume' ? resumeUnlocked : false;
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 text-white p-8"
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -100 }}
+      className="min-h-screen p-8 flex items-center justify-center"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl w-full">
+        {/* Back Button */}
         <motion.button
-          className="mb-8 px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:border-slate-500 transition-colors"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           onClick={onBack}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
-          ← Back to Hub
+          <ArrowLeft size={20} />
+          Back to Hub
         </motion.button>
 
+        {/* Section Header */}
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-center mb-12"
         >
-          <div className="flex items-center mb-8">
-            <Icon size={32} className="text-cyan-400" />
-            <h1 className="text-3xl font-bold ml-4">{data.title}</h1>
-          </div>          <div className="space-y-6">            {section === 'skills' ? (
-              <>
-                {Object.entries(data.content).map(([category, skills]) => (
-                  <div key={category}>
-                    <h3 className="text-xl font-semibold text-cyan-400 mb-4">{category}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {(skills as string[]).map((skill) => (
-                        <SkillIcon key={skill} skill={skill} />
-                      ))}
-                    </div>
+          <div className="inline-flex items-center gap-3 mb-4">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              {data.title}
+            </h1>
+            {isAccessed && (
+              <CheckCircle size={32} className="text-green-500" />
+            )}
+          </div>
+          <p className="text-xl text-blue-300 mb-2">{data.pathLabel}</p>
+          <p className="text-gray-400">{data.direction}</p>
+        </motion.div>
+
+        {/* Section Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-8"
+        >
+          {/* Content based on section type */}
+          {section === 'skills' ? (
+            <>
+              {/* Description */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-white mb-4">About This Section</h2>
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  Core technologies and programming languages in my current toolkit. This represents the primary tools I use for development and problem-solving.
+                </p>
+              </div>
+
+              {/* Skills Grid */}
+              {Object.entries(data.content).map(([category, skills]) => (
+                <div key={category} className="mb-8">
+                  <h3 className="text-xl font-semibold text-white mb-4">{category}</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {(skills as string[]).map((skill) => (
+                      <SkillIcon key={skill} skill={skill} />
+                    ))}
                   </div>
-                ))}                <div className="mt-6 p-4 bg-slate-800/30 border border-slate-600/50 rounded-lg">
-                  <p className="text-slate-400 text-sm text-center">
-                    💼 <span className="text-cyan-400 font-medium">Refer to the resume scroll for full list of skills</span>
-                  </p>
                 </div>
-              </>
-            ) : section === 'contact' ? (
+              ))}
+
+              {/* Note */}
+              <div className="mt-6 p-4 bg-blue-600/20 border border-blue-500/30 rounded-lg">
+                <p className="text-blue-300 text-sm text-center">
+                  💼 <span className="font-medium">Refer to the resume scroll for comprehensive skills inventory</span>
+                </p>
+              </div>
+            </>
+          ) : section === 'contact' ? (
+            <>
+              {/* Description */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-white mb-4">Get In Touch</h2>
+                <p className="text-gray-300 text-lg leading-relaxed">
+                  Feel free to reach out for collaboration opportunities, technical discussions, or project inquiries.
+                </p>
+              </div>
+
+              {/* Contact Methods */}
               <div className="space-y-4">
                 <ContactIcon 
                   type="email" 
@@ -816,54 +1010,72 @@ function SectionView({ section, onBack, onNavigateToSection }: {
                   type="linkedin" 
                   value="linkedin.com/in/aadhav-bharadwaj" 
                   href="https://linkedin.com/in/aadhav-bharadwaj" 
-                />              </div>            ) : section === 'research' ? (
-              <div className="space-y-6">
-                <p className="text-slate-300 leading-relaxed text-lg">
+                />
+              </div>
+            </>
+          ) : section === 'research' ? (
+            <>
+              {/* Description */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-white mb-4">Current Research</h2>
+                <p className="text-gray-300 text-lg leading-relaxed">
                   {(data.content as any).description}
                 </p>
-                <div className="p-4 bg-slate-800/30 border border-slate-600/50 rounded-lg">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Brain size={20} className="text-purple-400" />
-                    <span className="text-slate-300 font-medium">GitHub Repository:</span>
-                  </div>
-                  <motion.a
-                    href="https://github.com/Aadhavsb/chunkedDecomp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-slate-500 rounded-lg text-slate-300 hover:text-white transition-all duration-200"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span className="text-cyan-400 font-medium">{(data.content as any).repository}</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </motion.a>
-                </div>
               </div>
-            ) : section === 'resume' ? (
-              <div className="space-y-6">
-                <p className="text-slate-300 leading-relaxed text-lg">
+
+              {/* Repository Link */}
+              <div className="flex flex-wrap gap-4">
+                <motion.a
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  href="https://github.com/Aadhavsb/chunkedDecomp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
+                >
+                  <Github size={20} />
+                  View Research Repository
+                  <ExternalLink size={16} />
+                </motion.a>
+              </div>
+            </>
+          ) : section === 'resume' ? (
+            <>
+              {/* Description */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-white mb-4">Professional Documentation</h2>
+                <p className="text-gray-300 text-lg leading-relaxed">
                   {(data.content as any).description}
                 </p>
-                <div className="flex items-center justify-center p-6 bg-slate-800/30 border border-slate-600/50 rounded-lg">
-                  <FileText size={24} className="text-green-400 mr-3" />
-                  <div className="text-center">
-                    <p className="text-slate-300 mb-2">{(data.content as any).downloadText}</p>
-                    <p className="text-slate-500 text-sm">[{(data.content as any).status}]</p>
-                  </div>
+              </div>
+
+              {/* Download Section */}
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 rounded-lg text-gray-400">
+                  <FileText size={20} />
+                  {(data.content as any).downloadText}
+                  <span className="text-sm">({(data.content as any).status})</span>
                 </div>
               </div>
-            ) : (
-              Object.entries(data.content).map(([key, value]) => (
-                <div key={key} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                  <span className="text-cyan-400 font-semibold min-w-32">{key}:</span>
-                  <span className="text-slate-300">{value}</span>
-                </div>
-              ))
-            )}
-          </div>
+            </>
+          ) : null}
         </motion.div>
+
+        {/* Section Complete Status */}
+        {isAccessed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-600/20 border border-green-500/30 rounded-lg text-green-400 font-semibold">
+              <CheckCircle size={20} />
+              Module Accessed!
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
