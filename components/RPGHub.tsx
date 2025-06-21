@@ -36,23 +36,24 @@ export function RPGHub() {
   const [hasCompletedOnce, setHasCompletedOnce] = useState(false);  // Show welcome messages on first load
   React.useEffect(() => {
     if (!hasShownWelcome && terminalHistory.length === 0) {
-      setTimeout(() => {addTerminalEntry('🌟 === WELCOME TO THE DIGITAL REALM === 🌟');
-        addTerminalEntry('');
-        addTerminalEntry('🎭 You have entered Aadhav\'s Interactive Portfolio Hub');
-        addTerminalEntry('📍 Current Location: Central Command Center');
-        addTerminalEntry('🎯 Primary Mission: Discover projects, unlock skills, establish contact');
-        addTerminalEntry('');
-        addTerminalEntry('⚡ System Status: ONLINE | Exploration Mode: ACTIVE');
-        addTerminalEntry('🗺️  Available Pathways: 5 project realms await discovery');
-        addTerminalEntry('🔐 Advanced Systems: Locked (complete all projects to unlock)');
-        addTerminalEntry('');
-        addTerminalEntry('💡 Essential Commands:');
-        addTerminalEntry('   📖 "help" - Access command matrix');
-        addTerminalEntry('   🧭 "explore" - Receive navigation guidance');
-        addTerminalEntry('   🌍 Directional commands (north, east, south, west, northeast)');
-        addTerminalEntry('');        addTerminalEntry('🚀 Begin your digital odyssey! Type "help" to start.');
-        setHasShownWelcome(true);
-      }, 300);
+      // No delay - show welcome immediately
+      addTerminalEntry('🌟 === WELCOME TO THE DIGITAL REALM === 🌟');
+      addTerminalEntry('');
+      addTerminalEntry('🎭 You have entered Aadhav\'s Interactive Portfolio Hub');
+      addTerminalEntry('📍 Current Location: Central Command Center');
+      addTerminalEntry('🎯 Primary Mission: Discover projects, unlock skills, establish contact');
+      addTerminalEntry('');
+      addTerminalEntry('⚡ System Status: ONLINE | Exploration Mode: ACTIVE');
+      addTerminalEntry('🗺️  Available Pathways: 5 project realms await discovery');
+      addTerminalEntry('🔐 Advanced Systems: Locked (complete all projects to unlock)');
+      addTerminalEntry('');
+      addTerminalEntry('💡 Essential Commands:');
+      addTerminalEntry('   📖 "help" - Access command matrix');
+      addTerminalEntry('   🧭 "explore" - Receive navigation guidance');
+      addTerminalEntry('   🌍 Directional commands (north, east, south, west, northeast)');
+      addTerminalEntry('');
+      addTerminalEntry('🚀 Begin your digital odyssey! Type "help" to start.');
+      setHasShownWelcome(true);
     }
   }, [hasShownWelcome, terminalHistory.length, addTerminalEntry]);
 
@@ -157,17 +158,14 @@ export function RPGHub() {
       return;
     }
 
-    // Animate path with immersive messaging
-    setAnimatingPath(direction);
-    const directionName = direction.replace('go ', '');
-    addTerminalEntry(`✨ Initiating transport to ${directionName} sector...`);
-    addTerminalEntry(`🌀 Portal energy building... ${project.title} awaits!`);
-      // Show project after animation
+    // Animate path with immersive messaging    setAnimatingPath(direction);
+    addTerminalEntry(`✨ Initiating transport to ${direction.replace('go ', '')} sector...`);
+    addTerminalEntry(`🌀 Portal energy building... ${project.title} awaits!`);    // Show project after brief animation
     setTimeout(() => {
       setCurrentProject(project);
       setCurrentView('project');
       setAnimatingPath(null);
-    }, 800);
+    }, 400); // Reduced from 800ms to 400ms
   };
   const handleDirectionalCommand = (direction: string) => {
     const project = projects.find(p => p.direction === direction);
@@ -286,10 +284,7 @@ export function RPGHub() {
   };
   const handleProjectIconClick = (direction: string) => {
     const project = projects.find(p => p.direction === direction);
-    if (!project) return;
-
-    if (!unlockedProjects.includes(project.id)) {
-      const directionName = direction.replace('go ', '');
+    if (!project) return;    if (!unlockedProjects.includes(project.id)) {
       addTerminalEntry(`🔒 ${project.title} is locked! Use "${direction}" to unlock this pathway.`);
       return;
     }
@@ -320,30 +315,27 @@ export function RPGHub() {
             completeProject(currentProject.id);
             addTerminalEntry(`✅ PROJECT MASTERED: ${currentProject.title}`);
             addTerminalEntry(`🎯 Knowledge acquired and archived!`);
-            
-            // Check if this completes Tier 1
+              // Check if this completes Tier 1
             const newCompletedCount = completedProjects.length + 1;
             if (newCompletedCount === projects.length) {
-              setTimeout(() => {
-                addTerminalEntry('');
-                addTerminalEntry('🎉 ═══ TIER 1 MASTERY ACHIEVED! ═══ 🎉');
-                addTerminalEntry('🗺️  All directional realms explored!');
-                addTerminalEntry('🔓 TIER 2 SYSTEMS NOW ONLINE!');
-                addTerminalEntry('💫 Advanced command matrix unlocked!');
-                addTerminalEntry('🎯 Type "help" to access your new abilities!');
-                addTerminalEntry('');
-              }, 500);
+              // Remove delay - show immediately
+              addTerminalEntry('');
+              addTerminalEntry('🎉 ═══ TIER 1 MASTERY ACHIEVED! ═══ 🎉');
+              addTerminalEntry('🗺️  All directional realms explored!');
+              addTerminalEntry('🔓 TIER 2 SYSTEMS NOW ONLINE!');
+              addTerminalEntry('💫 Advanced command matrix unlocked!');
+              addTerminalEntry('🎯 Type "help" to access your new abilities!');
+              addTerminalEntry('');
             } else {
               // Give next step guidance for incomplete projects
               const remainingProjects = projects.filter(p => !completedProjects.includes(p.id) && p.id !== currentProject.id);
               if (remainingProjects.length > 0) {
-                setTimeout(() => {
-                  addTerminalEntry('');
-                  addTerminalEntry('🧭 === NEXT EXPLORATION TARGET === 🧭');
-                  const nextProject = remainingProjects[0];
-                  const unlockedRemaining = remainingProjects.filter(p => unlockedProjects.includes(p.id));
-                  
-                  if (unlockedRemaining.length > 0) {
+                // Remove delay - show immediately
+                addTerminalEntry('');
+                addTerminalEntry('🧭 === NEXT EXPLORATION TARGET === 🧭');
+                const nextProject = remainingProjects[0];
+                const unlockedRemaining = remainingProjects.filter(p => unlockedProjects.includes(p.id));
+                    if (unlockedRemaining.length > 0) {
                     const nextUnlocked = unlockedRemaining[0];
                     addTerminalEntry(`🎯 Ready to explore: ${nextUnlocked.title}`);
                     addTerminalEntry(`🖱️  Click the ${nextUnlocked.title} icon to continue your journey!`);
@@ -353,7 +345,6 @@ export function RPGHub() {
                     addTerminalEntry(`📊 Progress: ${completedProjects.length + 1}/${projects.length} projects completed`);
                   }
                   addTerminalEntry('');
-                }, 800);
               }
             }
           }
@@ -385,33 +376,25 @@ export function RPGHub() {
               'research': 'Research Archives',
               'contact': 'Contact Channels',
               'resume': 'Resume Vault'
-            };
-            
-            setTimeout(() => {
-              addTerminalEntry('');
-              addTerminalEntry('🔄 === RETURNING TO COMMAND CENTER === 🔄');
-              addTerminalEntry(`🎯 Next unlock available: ${nextSectionTitles[nextSection as keyof typeof nextSectionTitles]}`);
-              addTerminalEntry(`⚡ Command: "${nextCommands[nextSection as keyof typeof nextCommands]}"`);
-              addTerminalEntry('');
-            }, 300);
+            };            
+            // Remove delay - show immediately
+            addTerminalEntry('');
+            addTerminalEntry('🔄 === RETURNING TO COMMAND CENTER === 🔄');
+            addTerminalEntry(`🎯 Next unlock available: ${nextSectionTitles[nextSection as keyof typeof nextSectionTitles]}`);
+            addTerminalEntry(`⚡ Command: "${nextCommands[nextSection as keyof typeof nextCommands]}"`);
+            addTerminalEntry('');
           } else {
-            // All sections unlocked
-            setTimeout(() => {
-              addTerminalEntry('');
-              addTerminalEntry('🎉 === ALL SYSTEMS FULLY EXPLORED === 🎉');
-              addTerminalEntry('🏆 You have mastered every aspect of this portfolio!');
-              addTerminalEntry('✨ Feel free to re-explore any section anytime');
-              addTerminalEntry('');
-            }, 300);
+            // All sections unlocked - Remove delay, show immediately
+            addTerminalEntry('');
+            addTerminalEntry('🎉 === ALL SYSTEMS FULLY EXPLORED === 🎉');
+            addTerminalEntry('🏆 You have mastered every aspect of this portfolio!');
+            addTerminalEntry('✨ Feel free to re-explore any section anytime');
+            addTerminalEntry('');
           }
           
           setCurrentSection(null);
-          setCurrentView('hub');
-        }}onNavigateToSection={(section: string) => {
-          setCurrentSection(section as SectionType);
-          setCurrentView('section');
-        }}
-      />    );
+          setCurrentView('hub');        }}
+      />);
   }
 
   // Check for completion - all projects completed and all sections unlocked
@@ -425,21 +408,20 @@ export function RPGHub() {
       setHasCompletedOnce(true);
       setCurrentView('hub');
       setCurrentProject(null);
-      setCurrentSection(null);
-      setAnimatingPath(null);      // Show welcome back message
-      setTimeout(() => {
-        addTerminalEntry('');
-        addTerminalEntry('🎉 === WELCOME BACK, MASTER EXPLORER! === 🎉');
-        addTerminalEntry('');
-        addTerminalEntry('✨ You have returned to the fully unlocked Hub');
-        addTerminalEntry('🏆 Status: GRANDMASTER - All systems accessible');
-        addTerminalEntry('🌟 Experience Level: Maximum');
-        addTerminalEntry('');
-        addTerminalEntry('🎯 All pathways remain open for re-exploration');
-        addTerminalEntry('📚 Advanced systems ready for your command');
-        addTerminalEntry('');
-        addTerminalEntry('💡 Type "help" to see your full command matrix');
-      }, 300);
+      setCurrentSection(null);      setAnimatingPath(null);
+      
+      // Show welcome back message immediately
+      addTerminalEntry('');
+      addTerminalEntry('🎉 === WELCOME BACK, MASTER EXPLORER! === 🎉');
+      addTerminalEntry('');
+      addTerminalEntry('✨ You have returned to the fully unlocked Hub');
+      addTerminalEntry('🏆 Status: GRANDMASTER - All systems accessible');
+      addTerminalEntry('🌟 Experience Level: Maximum');
+      addTerminalEntry('');
+      addTerminalEntry('🎯 All pathways remain open for re-exploration');
+      addTerminalEntry('📚 Advanced systems ready for your command');
+      addTerminalEntry('');
+      addTerminalEntry('💡 Type "help" to see your full command matrix');
       // Keep advanced sections unlocked: skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked
       // Don't reset hasShownWelcome to avoid re-showing welcome message
     }} />;
@@ -840,8 +822,7 @@ function PathAnimation({ direction }: { direction: string }) {
 // Section View Component
 function SectionView({ 
   section, 
-  onBack, 
-  onNavigateToSection,
+  onBack,
   skillsUnlocked,
   researchUnlocked,
   contactUnlocked,
@@ -849,7 +830,6 @@ function SectionView({
 }: { 
   section: string; 
   onBack: () => void;
-  onNavigateToSection?: (section: string) => void;
   skillsUnlocked: boolean;
   researchUnlocked: boolean;
   contactUnlocked: boolean;
@@ -899,9 +879,7 @@ function SectionView({
       }
     }
   };
-
   const data = sectionData[section as keyof typeof sectionData];
-  const Icon = data.icon;
   
   // Use the individual section unlocked states from the parent component
   const isAccessed = section === 'skills' ? skillsUnlocked :
@@ -1014,12 +992,11 @@ function SectionView({
               </div>
             </>
           ) : section === 'research' ? (
-            <>
-              {/* Description */}
+            <>              {/* Description */}
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-white mb-4">Current Research</h2>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  {(data.content as any).description}
+                  {(data.content as { description: string }).description}
                 </p>
               </div>
 
@@ -1046,7 +1023,7 @@ function SectionView({
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-white mb-4">Professional Documentation</h2>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  {(data.content as any).description}
+                  {(data.content as { description: string }).description}
                 </p>
               </div>
 
@@ -1054,8 +1031,8 @@ function SectionView({
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 rounded-lg text-gray-400">
                   <FileText size={20} />
-                  {(data.content as any).downloadText}
-                  <span className="text-sm">({(data.content as any).status})</span>
+                  {(data.content as { downloadText: string }).downloadText}
+                  <span className="text-sm">({(data.content as { status: string }).status})</span>
                 </div>
               </div>
             </>
