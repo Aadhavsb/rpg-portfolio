@@ -55,9 +55,8 @@ export function Terminal({ onBack, onStartJourney, showStartJourney = false }: T
       setInput('');
     }
   };
-
   const availableCommands = showStartJourney 
-    ? ['start journey', 'help']
+    ? ['start journey']
     : ['check inventory', 'consult scrolls', 'display beacon', 'back'];
   return (
     <div className="min-h-screen p-8 flex items-center justify-center bg-gradient-to-br from-slate-900 via-stone-900 to-amber-900">
