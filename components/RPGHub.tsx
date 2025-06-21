@@ -8,6 +8,7 @@ import { TerminalSimple } from './TerminalSimple';
 import { ProjectView } from './ProjectView';
 import { SkillIcon } from './SkillIcon';
 import { ContactIcon } from './ContactIcon';
+import { CompletionScreen } from './CompletionScreen';
 import { Mail, FileText, Brain, Zap, Code, Database, Palette } from 'lucide-react';
 
 type ViewState = 'hub' | 'project' | 'section';
@@ -32,15 +33,22 @@ export function RPGHub() {
   const [contactUnlocked, setContactUnlocked] = useState(false);
   const [resumeUnlocked, setResumeUnlocked] = useState(false);
   const [animatingPath, setAnimatingPath] = useState<string | null>(null);  const [hasShownWelcome, setHasShownWelcome] = useState(false);
-
   // Show welcome messages on first load
   React.useEffect(() => {
     if (!hasShownWelcome && terminalHistory.length === 0) {
       setTimeout(() => {
-        addTerminalEntry('🎮 Welcome to Aadhav\'s RPG Portfolio!');
-        addTerminalEntry('📍 You are at the central hub.');
-        addTerminalEntry('💡 Type "help" to see available commands.');
-        addTerminalEntry('🚀 Navigate using: go north, go east, go south, go west, go northeast');
+        addTerminalEntry('� === WELCOME TO THE DIGITAL REALM === 🌟');
+        addTerminalEntry('');
+        addTerminalEntry('🎭 You have entered Aadhav\'s Interactive Portfolio Hub');
+        addTerminalEntry('📍 Location: Central Command Center');
+        addTerminalEntry('🎯 Mission: Discover projects, skills, and connect');
+        addTerminalEntry('');
+        addTerminalEntry('💡 Quick Start Commands:');
+        addTerminalEntry('   • Type "help" - View all available commands');
+        addTerminalEntry('   • Type "explore" - Get exploration tips');
+        addTerminalEntry('   • Use directional commands to navigate projects');
+        addTerminalEntry('');
+        addTerminalEntry('🚀 Ready to begin your journey? Start with "help"');
         setHasShownWelcome(true);
       }, 1000);
     }
@@ -60,28 +68,56 @@ export function RPGHub() {
         completedProjects.includes(project.id)
       );
       
-      addTerminalEntry('=== AVAILABLE COMMANDS ===');
+      addTerminalEntry('🔮 === DIGITAL NAVIGATION COMPENDIUM === 🔮');
+      addTerminalEntry('');
       if (!allDirectionalProjectsCompleted) {
-        addTerminalEntry('🎯 TIER 1 - Directional Commands:');
-        addTerminalEntry('  • go north    - Explore northern project');
-        addTerminalEntry('  • go east     - Explore eastern project'); 
-        addTerminalEntry('  • go south    - Explore southern project');
-        addTerminalEntry('  • go west     - Explore western project');
-        addTerminalEntry('  • go northeast - Explore northeastern project');
-        addTerminalEntry('💡 Complete all directions to unlock Tier 2!');
+        addTerminalEntry('⚔️  TIER 1 - PROJECT EXPLORATION:');
+        addTerminalEntry('   🧭 go north      → Venture to the northern realm');
+        addTerminalEntry('   🧭 go east       → Journey eastward to discovery'); 
+        addTerminalEntry('   🧭 go south      → Explore the southern territories');
+        addTerminalEntry('   🧭 go west       → Travel west to new horizons');
+        addTerminalEntry('   🧭 go northeast  → Ascend to the northeastern peaks');
+        addTerminalEntry('');
+        addTerminalEntry('🎯 Complete all directional quests to unlock TIER 2!');
       } else {
-        addTerminalEntry('🔓 TIER 2 - Advanced Commands:');
-        addTerminalEntry('  • check inventory     - Access skills matrix');
-        addTerminalEntry('  • consult the scrolls - View research archives');
-        addTerminalEntry('  • display beacon      - Open contact channels');
-        addTerminalEntry('  • get apprenticeship  - View resume documents');
+        addTerminalEntry('🔓 TIER 2 - ADVANCED SYSTEMS UNLOCKED:');
+        addTerminalEntry('   📦 check inventory      → Access skills matrix');
+        addTerminalEntry('   📜 consult the scrolls  → View research archives');
+        addTerminalEntry('   📡 display beacon       → Open contact channels');
+        addTerminalEntry('   📋 get apprenticeship   → Access resume vault');
       }
-      addTerminalEntry('  • help        - Show this help menu');
-      addTerminalEntry('===========================');
+      addTerminalEntry('');
+      addTerminalEntry('🛠️  UTILITY COMMANDS:');
+      addTerminalEntry('   ❓ help     → Display this compendium');
+      addTerminalEntry('   🗺️  explore → Get navigation tips & tricks');
+      addTerminalEntry('');
+      addTerminalEntry('════════════════════════════════════════');
+    },
+    'explore': () => {
+      addTerminalEntry('🗺️  === EXPLORER\'S GUIDE === 🗺️');
+      addTerminalEntry('');
+      addTerminalEntry('🎮 NAVIGATION TIPS:');
+      addTerminalEntry('   • Each direction leads to a unique project');
+      addTerminalEntry('   • Projects unlock automatically when you visit them');
+      addTerminalEntry('   • Complete projects by viewing their details');
+      addTerminalEntry('   • Advanced systems unlock after all projects');
+      addTerminalEntry('');
+      addTerminalEntry('🏆 PROGRESSION SYSTEM:');
+      addTerminalEntry('   • TIER 1: Explore all 5 directional projects');
+      addTerminalEntry('   • TIER 2: Access 4 advanced information systems');
+      addTerminalEntry('   • COMPLETION: Unlock the final achievement screen');
+      addTerminalEntry('');
+      addTerminalEntry('💡 PRO TIPS:');
+      addTerminalEntry('   • Use "help" to see available commands');
+      addTerminalEntry('   • Each project showcases different skills');
+      addTerminalEntry('   • Advanced systems contain detailed information');
+      addTerminalEntry('');
+      addTerminalEntry('🚀 Ready to start? Try "go north" to begin!');
     },    'go north': () => {
       const project = projects.find(p => p.direction === 'go north');
       if (project && !unlockedProjects.includes(project.id)) {
         unlockProject(project.id);
+        addTerminalEntry('🔓 Northern pathway unlocked! Project discovered.');
       }
       handleProjectNavigation('go north');
     },
@@ -89,6 +125,7 @@ export function RPGHub() {
       const project = projects.find(p => p.direction === 'go east');
       if (project && !unlockedProjects.includes(project.id)) {
         unlockProject(project.id);
+        addTerminalEntry('🔓 Eastern gateway opened! New project revealed.');
       }
       handleProjectNavigation('go east');
     },
@@ -96,6 +133,7 @@ export function RPGHub() {
       const project = projects.find(p => p.direction === 'go south');
       if (project && !unlockedProjects.includes(project.id)) {
         unlockProject(project.id);
+        addTerminalEntry('🔓 Southern route established! Project accessible.');
       }
       handleProjectNavigation('go south');
     },
@@ -103,6 +141,7 @@ export function RPGHub() {
       const project = projects.find(p => p.direction === 'go west');
       if (project && !unlockedProjects.includes(project.id)) {
         unlockProject(project.id);
+        addTerminalEntry('🔓 Western passage cleared! Project unlocked.');
       }
       handleProjectNavigation('go west');
     },
@@ -110,6 +149,7 @@ export function RPGHub() {
       const project = projects.find(p => p.direction === 'go northeast');
       if (project && !unlockedProjects.includes(project.id)) {
         unlockProject(project.id);
+        addTerminalEntry('🔓 Northeastern summit reached! Project discovered.');
       }
       handleProjectNavigation('go northeast');
     },
@@ -117,23 +157,24 @@ export function RPGHub() {
     'consult the scrolls': () => handleSectionUnlock('research'),
     'display beacon': () => handleSectionUnlock('contact'),
     'get apprenticeship': () => handleSectionUnlock('resume')
-  };
-  const handleProjectNavigation = (direction: string) => {
+  };  const handleProjectNavigation = (direction: string) => {
     const project = projects.find(p => p.direction === direction);
     if (!project) {
-      addTerminalEntry(`No project found in that direction.`);
+      addTerminalEntry('🚫 No pathway exists in that direction. Check your compass!');
       return;
     }
 
     // Check if project is unlocked before allowing navigation
     if (!unlockedProjects.includes(project.id)) {
-      addTerminalEntry(`🔒 Project locked. Use terminal command: ${direction}`);
+      addTerminalEntry(`🔒 The path ${direction.replace('go ', '')} remains sealed. Use the command "${direction}" to unlock it first.`);
       return;
     }
 
-    // Animate path
+    // Animate path with immersive messaging
     setAnimatingPath(direction);
-    addTerminalEntry(`Activating path ${direction.replace('go ', '')}...`);
+    const directionName = direction.replace('go ', '');
+    addTerminalEntry(`✨ Initiating transport to ${directionName} sector...`);
+    addTerminalEntry(`🌀 Portal energy building... ${project.title} awaits!`);
     
     // Show project after animation
     setTimeout(() => {
@@ -146,10 +187,9 @@ export function RPGHub() {
     // Check if Tier 1 (all directional projects) is completed
     const allDirectionalProjectsCompleted = projects.every(project => 
       completedProjects.includes(project.id)
-    );
-
-    if (!allDirectionalProjectsCompleted) {
-      addTerminalEntry('Quest requirements not met. Complete all directional paths first (go north, east, south, west, northeast).');
+    );    if (!allDirectionalProjectsCompleted) {
+      addTerminalEntry('⚠️  TIER 2 SYSTEMS LOCKED: Complete all directional exploration first!');
+      addTerminalEntry('🗺️  Missing paths: ' + projects.filter(p => !completedProjects.includes(p.id)).map(p => p.direction.replace('go ', '')).join(', '));
       return;
     }
 
@@ -183,29 +223,30 @@ export function RPGHub() {
           research: 'consult the scrolls',
           contact: 'display beacon',
           resume: 'get apprenticeship'
-        }[prevSection];
-        addTerminalEntry(`You must unlock the previous section first. Type: ${prevCommand}`);
+        }[prevSection];        addTerminalEntry(`You must unlock the previous section first. Type: ${prevCommand}`);
         return;
       }
-    }
-
-    // Unlock and show the section
+    }    // Unlock and show the section
     switch (section) {
       case 'skills':
         setSkillsUnlocked(true);
-        addTerminalEntry('Inventory accessed! Opening skills matrix...');
+        addTerminalEntry('📦 INVENTORY SYSTEM ACTIVATED!');
+        addTerminalEntry('✨ Skills matrix now accessible...');
         break;
       case 'research':
         setResearchUnlocked(true);
-        addTerminalEntry('Ancient scrolls revealed! Accessing research archives...');
+        addTerminalEntry('📜 ANCIENT SCROLLS MATERIALIZED!');
+        addTerminalEntry('🔬 Research archives unlocked...');
         break;
       case 'contact':
         setContactUnlocked(true);
-        addTerminalEntry('Beacon activated! Contact channels established...');
+        addTerminalEntry('📡 BEACON SIGNAL ESTABLISHED!');
+        addTerminalEntry('🌐 Communication channels active...');
         break;
       case 'resume':
         setResumeUnlocked(true);
-        addTerminalEntry('Apprenticeship documents materialized!');
+        addTerminalEntry('📋 APPRENTICESHIP VAULT OPENED!');
+        addTerminalEntry('📄 Professional documentation accessible...');
         break;
     }
 
@@ -216,7 +257,6 @@ export function RPGHub() {
     // Individual sections don't need specific project completion, just sequential unlock
     return projects.map(p => p.id); // All directional projects
   };
-
   const handleCommand = (cmd: string) => {
     addTerminalEntry(`> ${cmd}`);
     
@@ -226,7 +266,8 @@ export function RPGHub() {
     if (handler) {
       handler();
     } else {
-      addTerminalEntry(`Unknown command: ${cmd}. Type 'help' for available commands.`);
+      addTerminalEntry(`❓ Unknown command: "${cmd}"`);
+      addTerminalEntry(`💡 Try "help" for available commands or "explore" for tips!`);
     }
   };
 
@@ -252,19 +293,23 @@ export function RPGHub() {
     return (
       <ProjectView 
         project={currentProject} 
-        onBack={() => {
-          // Mark project as completed when returning from project view
+        onBack={() => {          // Mark project as completed when returning from project view
           if (!completedProjects.includes(currentProject.id)) {
             completeProject(currentProject.id);
-            addTerminalEntry(`Project completed: ${currentProject.title}`);
+            addTerminalEntry(`✅ PROJECT MASTERED: ${currentProject.title}`);
+            addTerminalEntry(`🎯 Knowledge acquired and archived!`);
             
             // Check if this completes Tier 1
             const newCompletedCount = completedProjects.length + 1;
             if (newCompletedCount === projects.length) {
               setTimeout(() => {
-                addTerminalEntry('🎉 TIER 1 COMPLETED! All directional paths explored!');
-                addTerminalEntry('🔓 TIER 2 UNLOCKED! Advanced commands are now available.');
-                addTerminalEntry('Type "help" to see your new options.');
+                addTerminalEntry('');
+                addTerminalEntry('🎉 ═══ TIER 1 MASTERY ACHIEVED! ═══ 🎉');
+                addTerminalEntry('🗺️  All directional realms explored!');
+                addTerminalEntry('🔓 TIER 2 SYSTEMS NOW ONLINE!');
+                addTerminalEntry('💫 Advanced command matrix unlocked!');
+                addTerminalEntry('🎯 Type "help" to access your new abilities!');
+                addTerminalEntry('');
               }, 500);
             }
           }
@@ -274,7 +319,6 @@ export function RPGHub() {
       />
     );
   }
-
   // Section view
   if (currentView === 'section' && currentSection) {    return (
       <SectionView 
@@ -288,7 +332,20 @@ export function RPGHub() {
         }}
       />
     );
-  }  // Main hub view
+  }  // Check for completion - all projects completed and all sections unlocked
+  const allCompleted = completedProjects.length === projects.length && 
+                      skillsUnlocked && researchUnlocked && contactUnlocked && resumeUnlocked;
+    if (allCompleted) {
+    return <CompletionScreen onBack={() => {
+      // Reset only view state, preserve advanced section unlock state
+      setCurrentView('hub');
+      setCurrentProject(null);
+      setCurrentSection(null);
+      setAnimatingPath(null);
+      // Keep advanced sections unlocked: skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked
+      // Don't reset hasShownWelcome to avoid re-showing welcome message
+    }} />;
+  }// Main hub view
   return (
     <div className="h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white relative overflow-hidden">
       {/* Subtle background pattern */}
@@ -461,18 +518,21 @@ export function RPGHub() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
               className="bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-lg p-3"
-            >
-              <div className="flex justify-between items-center mb-2">
+            >              <div className="flex justify-between items-center mb-2">
                 <span className="text-slate-300 text-sm">Progress</span>
-                <span className="text-cyan-400 text-sm font-medium">{completedProjects.length}/{projects.length}</span>
+                <span className="text-cyan-400 text-sm font-medium">
+                  {completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}/9
+                </span>
               </div>
               <div className="w-full bg-slate-800 rounded-full h-2">
                 <motion.div 
                   className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full"
                   initial={{ width: 0 }}
-                  animate={{ width: `${(completedProjects.length / projects.length) * 100}%` }}
+                  animate={{ 
+                    width: `${((completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length) / 9) * 100}%` 
+                  }}
                   transition={{ duration: 1, delay: 0.5 }}
-                />              </div>
+                /></div>
             </motion.div>
           </div>
         </div>
@@ -673,25 +733,22 @@ function SectionView({ section, onBack, onNavigateToSection }: {
       }
     },    research: {
       title: 'Research',
-      icon: Brain,
-      content: {
-        description: 'Gain access to an advanced scroll chronicling ongoing research efforts in transformer architecture optimization. I am investigating KV cache compression for large language models—specifically through chunk-wise singular value decomposition (SVD) and dynamic token-rank strategies. The work combines mathematical exploration, GPU-accelerated computation, and high-performance system design to make inference more memory-efficient without degrading output quality. This research is deployed across Dockerized environments in HPC clusters.',
+      icon: Brain,      content: {
+        description: 'I am investigating KV cache compression for large language models—specifically through chunk-wise singular value decomposition (SVD) and dynamic token-rank strategies. The work combines mathematical exploration, GPU-accelerated computation, and high-performance system design to make inference more memory-efficient without degrading output quality. This research is deployed across Dockerized environments in HPC clusters.',
         repository: 'chunkedDecomp'
       }
-    },
-    contact: {
-      title: 'Contact Beacon',
+    },    contact: {
+      title: 'Contact',
       icon: Mail,
       content: {
         'Email': 'bharadwajaadhav@gmail.com',
         'GitHub': 'github.com/Aadhavsb',
         'LinkedIn': 'linkedin.com/in/aadhav-bharadwaj'
       }
-    },    resume: {
+    },resume: {
       title: 'Resume',
-      icon: FileText,
-      content: {
-        description: 'Access the complete professional documentation scroll containing detailed experience, education, certifications, and comprehensive skills inventory.',
+      icon: FileText,      content: {
+        description: 'Access resume containing detailed experience, education, certifications, and comprehensive skills inventory.',
         downloadText: 'Download PDF Resume',
         status: 'Available Soon'
       }
@@ -806,76 +863,6 @@ function SectionView({ section, onBack, onNavigateToSection }: {
               ))
             )}
           </div>
-            {/* Quick Actions */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mt-8 flex flex-wrap gap-3 justify-center"
-          >
-            {section === 'skills' && (
-              <motion.button
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}                onClick={() => {
-                  onNavigateToSection?.('resume');
-                }}
-              >
-                View Full Resume
-              </motion.button>
-            )}
-            {section === 'contact' && (
-              <>
-                <motion.button
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open('mailto:bharadwajaadhav@gmail.com')}
-                >
-                  Send Email
-                </motion.button>
-                <motion.button
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 font-medium transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open('https://github.com/Aadhavsb', '_blank')}
-                >
-                  View GitHub
-                </motion.button>
-                <motion.button
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open('https://linkedin.com/in/aadhav-bharadwaj', '_blank')}
-                >
-                  Connect on LinkedIn
-                </motion.button>
-              </>
-            )}
-            {section === 'resume' && (
-              <motion.button
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-medium transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  // Placeholder for resume download
-                  alert('Resume download will be available soon!');
-                }}
-              >
-                Download PDF Resume
-              </motion.button>
-            )}
-            {section === 'research' && (
-              <motion.button
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => window.open('https://github.com/Aadhavsb/chunkedDecomp', '_blank')}
-              >
-                View Repository
-              </motion.button>
-            )}
-          </motion.div>
         </motion.div>
       </div>
     </motion.div>
