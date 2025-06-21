@@ -295,18 +295,16 @@ export function RPGHub() {
             Aadhav Bharadwaj
           </h1>
           <p className="text-sm text-gray-400">Interactive Developer Portfolio</p>
-        </motion.div>
-
-        {/* Main Content Area - Fixed to prevent overlap */}
+        </motion.div>        {/* Main Content Area - Restructured layout */}
         <div className="flex-1 flex gap-6 min-h-0 pb-4">
-          {/* Left - Terminal Column */}
+          {/* Left - Terminal Column (no advanced cards here) */}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="w-80 flex-shrink-0 flex flex-col gap-6"
+            className="w-80 flex-shrink-0"
           >
-            {/* Terminal */}
-            <div className="flex-1 bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 flex flex-col shadow-2xl min-h-0">
+            {/* Terminal - Full height */}
+            <div className="h-full bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 flex flex-col shadow-2xl">
               <h3 className="text-lg font-semibold mb-3 text-blue-400 flex items-center">
                 <span className="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
                 Terminal
@@ -377,88 +375,31 @@ export function RPGHub() {
                     </>
                   )}
                 </div>
-              </div>
-              
-              <div className="flex-1 min-h-0">
+              </div>              
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <TerminalSimple 
                   history={terminalHistory}
                   onCommand={handleCommand}
                 />
               </div>
             </div>
-
-            {/* Advanced Section Cards - Only when available and with proper spacing */}
-            {(skillsUnlocked || researchUnlocked || contactUnlocked || resumeUnlocked) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 shadow-2xl"
-              >
-                <div className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
-                  Advanced Access
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    {skillsUnlocked && (
-                      <SectionCard 
-                        title="Skills"
-                        icon={Code}
-                        unlocked={skillsUnlocked}
-                        command="check inventory"
-                        onClick={() => handleSectionCardClick('skills')}
-                      />
-                    )}
-                    {researchUnlocked && (
-                      <SectionCard 
-                        title="Research"
-                        icon={Brain}
-                        unlocked={researchUnlocked}
-                        command="consult the scrolls"
-                        onClick={() => handleSectionCardClick('research')}
-                      />
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {contactUnlocked && (
-                      <SectionCard 
-                        title="Contact"
-                        icon={Mail}
-                        unlocked={contactUnlocked}
-                        command="display beacon"
-                        onClick={() => handleSectionCardClick('contact')}
-                      />
-                    )}
-                    {resumeUnlocked && (
-                      <SectionCard 
-                        title="Resume"
-                        icon={FileText}
-                        unlocked={resumeUnlocked}
-                        command="get apprenticeship"
-                        onClick={() => handleSectionCardClick('resume')}
-                      />
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </motion.div>
 
-          {/* Right - Project Hub */}
+          {/* Right - Project Hub Column */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex-1 flex flex-col min-h-0"
           >
-            <div className="flex-1 bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-8 flex flex-col shadow-2xl">
-              <h3 className="text-xl font-semibold mb-6 text-center text-slate-200 flex items-center justify-center">
+            <div className="flex-1 bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 flex flex-col shadow-2xl">
+              <h3 className="text-lg font-semibold mb-4 text-center text-slate-200 flex items-center justify-center">
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></span>
                 Project Hub
                 <span className="w-2 h-2 bg-cyan-400 rounded-full ml-3"></span>
               </h3>
               
-              {/* Project Grid with Path Animations - Perfect Symmetry */}
-              <div className="relative grid grid-cols-3 grid-rows-3 gap-8 max-w-md mx-auto flex-1 place-items-center">
+              {/* Project Grid with Path Animations - More Compact */}
+              <div className="relative grid grid-cols-3 grid-rows-3 gap-4 max-w-xs mx-auto place-items-center" style={{ height: '240px' }}>
                 {/* Animated Paths */}
                 <AnimatePresence>
                   {animatingPath && (
@@ -493,8 +434,7 @@ export function RPGHub() {
                   projectIcons={projectIcons}
                 />
 
-                {/* Row 2 - West, HUB, East */}
-                <ProjectIcon 
+                {/* Row 2 - West, HUB, East */}                <ProjectIcon 
                   project={projects.find(p => p.direction === 'go west')} 
                   direction="go west" 
                   onClick={handleProjectIconClick}
@@ -504,16 +444,16 @@ export function RPGHub() {
                 />
                 
                 <motion.div 
-                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 rounded-2xl h-16 w-16 border border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden relative"
+                  className="flex items-center justify-center bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 rounded-lg h-10 w-10 border border-white/10 shadow-xl backdrop-blur-xl overflow-hidden relative"
                   whileHover={{ scale: 1.05, rotateY: 5 }}
                 >
                   {/* Premium Background Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 rounded-2xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 rounded-lg" />
                   
-                  <span className="text-sm font-semibold text-slate-200 relative z-10 tracking-wide">HUB</span>
+                  <span className="text-xs font-semibold text-slate-200 relative z-10 tracking-wide">HUB</span>
                   
                   {/* Subtle Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300" />
                 </motion.div>
                 
                 <ProjectIcon 
@@ -540,6 +480,56 @@ export function RPGHub() {
             </div>
           </motion.div>
         </div>
+        
+        {/* Advanced Section Cards - Below Project Hub, Above Progress Bar */}
+        {(skillsUnlocked || researchUnlocked || contactUnlocked || resumeUnlocked) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-4 bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 shadow-2xl"
+          >
+            <div className="text-sm font-medium text-slate-300 mb-4 text-center flex items-center justify-center">
+              <span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>
+              Advanced Access
+              <span className="w-2 h-2 bg-purple-400 rounded-full ml-3"></span>
+            </div>
+            <div className="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+              {skillsUnlocked && (
+                <SectionCard 
+                  title="Skills"
+                  icon={Code}
+                  unlocked={skillsUnlocked}
+                  onClick={() => handleSectionCardClick('skills')}
+                />
+              )}
+              {researchUnlocked && (
+                <SectionCard 
+                  title="Research"
+                  icon={Brain}
+                  unlocked={researchUnlocked}
+                  onClick={() => handleSectionCardClick('research')}
+                />
+              )}
+              {contactUnlocked && (
+                <SectionCard 
+                  title="Contact"
+                  icon={Mail}
+                  unlocked={contactUnlocked}
+                  onClick={() => handleSectionCardClick('contact')}
+                />
+              )}
+              {resumeUnlocked && (
+                <SectionCard 
+                  title="Resume"
+                  icon={FileText}
+                  unlocked={resumeUnlocked}
+                  onClick={() => handleSectionCardClick('resume')}
+                />
+              )}
+            </div>
+          </motion.div>
+        )}
         
         {/* Progress Bar - Fixed at bottom, never overlapping */}
         <motion.div 

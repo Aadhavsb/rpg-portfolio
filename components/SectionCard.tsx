@@ -7,11 +7,10 @@ interface SectionCardProps {
   title: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   unlocked: boolean;
-  command: string;
   onClick: () => void;
 }
 
-export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: SectionCardProps) {
+export function SectionCard({ title, icon: Icon, unlocked, onClick }: SectionCardProps) {
   // Define preview content for each section
   const sectionPreviews = {
     'Skills': ['JavaScript', 'React', 'Python', 'Machine Learning'],
@@ -21,7 +20,6 @@ export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: S
   };
 
   const previewItems = sectionPreviews[title as keyof typeof sectionPreviews] || [];
-
   return (
     <motion.div
       className={`
@@ -30,7 +28,7 @@ export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: S
           ? 'bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20' 
           : 'bg-slate-900/40 border border-slate-700/50 hover:bg-slate-800/60 hover:border-slate-600/70'
         }
-        backdrop-blur-xl rounded-2xl shadow-2xl
+        backdrop-blur-xl rounded-xl shadow-xl
       `}
       style={{
         background: unlocked 
@@ -39,27 +37,27 @@ export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: S
       }}
       whileHover={{ 
         scale: 1.02, 
-        y: -4,
+        y: -2,
         transition: { duration: 0.2, ease: "easeOut" }
       }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
       {/* Premium Card Background Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/10 rounded-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/10 rounded-xl" />
       
-      {/* Card Content */}
-      <div className="relative p-4 flex flex-col items-center text-center h-full">
-        {/* Icon Container */}
+      {/* Card Content - Compact Design */}
+      <div className="relative p-3 flex flex-col items-center text-center h-full">
+        {/* Icon Container - Smaller */}
         <div className={`
-          relative mb-3 p-3 rounded-xl transition-all duration-300
+          relative mb-2 p-2 rounded-lg transition-all duration-300
           ${unlocked 
             ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 shadow-lg shadow-blue-500/10' 
             : 'bg-slate-800/50 shadow-lg shadow-black/20'
           }
         `}>
           <Icon 
-            size={20} 
+            size={16} 
             className={`
               transition-all duration-300
               ${unlocked 
@@ -71,13 +69,13 @@ export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: S
           
           {/* Icon Glow Effect */}
           {unlocked && (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-xl blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-lg blur-xl" />
           )}
         </div>
         
-        {/* Title */}
+        {/* Title - Compact */}
         <h4 className={`
-          text-sm font-semibold mb-2 transition-all duration-300 tracking-wide
+          text-xs font-semibold mb-1 transition-all duration-300 tracking-wide
           ${unlocked 
             ? 'text-white group-hover:text-blue-100' 
             : 'text-slate-300 group-hover:text-slate-200'
@@ -86,33 +84,28 @@ export function SectionCard({ title, icon: Icon, unlocked, command, onClick }: S
           {title}
         </h4>
         
-        {/* Content Preview - Show only if unlocked */}
+        {/* Content Preview - Show only if unlocked and compact */}
         {unlocked ? (
-          <div className="space-y-1 mb-2">
-            {previewItems.slice(0, 2).map((item, index) => (
-              <div key={index} className="text-xs text-slate-400 truncate">
-                {item}
-              </div>
-            ))}
-            {previewItems.length > 2 && (
-              <div className="text-xs text-blue-400">+{previewItems.length - 2} more</div>
-            )}
+          <div className="mb-2">
+            <div className="text-xs text-blue-400">
+              {previewItems.length > 0 ? `${previewItems.length} items` : 'Available'}
+            </div>
           </div>
         ) : (
           <div className="mb-2">
-            <div className="text-xs text-slate-500 italic">Command: &quot;{command}&quot;</div>
+            <div className="text-xs text-slate-500 italic truncate">Locked</div>
           </div>
         )}
         
-        {/* Status */}
+        {/* Status - Compact */}
         <div className={`
-          px-2 py-1 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300
+          px-2 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all duration-300
           ${unlocked 
             ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 border border-green-500/30' 
             : 'bg-slate-700/50 text-slate-400 border border-slate-600/50'
           }
         `}>
-          {unlocked ? 'Click to View' : 'Locked'}
+          {unlocked ? 'View' : 'Locked'}
         </div>
       </div>
       
