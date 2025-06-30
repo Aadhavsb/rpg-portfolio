@@ -835,8 +835,7 @@ function SectionView({
       icon: FileText,
       content: {
         description: 'Access resume containing detailed experience, education, certifications, and comprehensive skills inventory.',
-        downloadText: 'Download PDF Resume',
-        status: 'Available Soon'
+        downloadText: 'Download PDF Resume'
       }
     }
   };
@@ -990,11 +989,18 @@ function SectionView({
 
               {/* Download Section */}
               <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 rounded-lg text-gray-400">
+                <motion.a
+                  href="https://drive.google.com/file/d/1J5YsWXeU-5DrI5iDPlsuf5CkfaAfnsMB/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                   <FileText size={20} />
                   {(data.content as { downloadText: string }).downloadText}
-                  <span className="text-sm">({(data.content as { status: string }).status})</span>
-                </div>
+                  <ExternalLink size={16} />
+                </motion.a>
               </div>
             </>
           ) : null}
