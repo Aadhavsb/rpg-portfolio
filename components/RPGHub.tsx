@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/store';
-import { Project } from '@/lib/types';
+import { Project, WorkExperience } from '@/lib/types';
 import { TerminalSimple } from './TerminalSimple';
 import { ProjectView } from './ProjectView';
+import { WorkExperienceView } from './WorkExperienceView';
 import { SkillIcon } from './SkillIcon';
 import { ContactIcon } from './ContactIcon';
 import { CompletionScreen } from './CompletionScreen';
-import { Mail, FileText, Brain, Zap, Code, Database, Palette, ArrowLeft, CheckCircle, Github, ExternalLink } from 'lucide-react';
+import { Mail, FileText, Brain, Zap, Code, Database, Palette, ArrowLeft, CheckCircle, Github, ExternalLink, Briefcase } from 'lucide-react';
+import portfolioData from '@/data/portfolio.json';
 
-type ViewState = 'hub' | 'project' | 'section';
+type ViewState = 'hub' | 'project' | 'section' | 'workExperience';
 type SectionType = 'skills' | 'research' | 'contact' | 'resume';
 
 export function RPGHub() {
@@ -27,6 +29,10 @@ export function RPGHub() {
   const [currentView, setCurrentView] = useState<ViewState>('hub');
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [currentSection, setCurrentSection] = useState<SectionType | null>(null);
+  const [currentWorkExperience, setCurrentWorkExperience] = useState<WorkExperience | null>(null);
+  const [workExperiences] = useState<WorkExperience[]>(portfolioData.workExperience as WorkExperience[]);
+  const [chroniclesUnlocked, setChroniclesUnlocked] = useState(false);
+  const [viewedExperiences, setViewedExperiences] = useState<string[]>([]);
   const [skillsUnlocked, setSkillsUnlocked] = useState(false);
   const [researchUnlocked, setResearchUnlocked] = useState(false);
   const [contactUnlocked, setContactUnlocked] = useState(false);
@@ -38,9 +44,9 @@ export function RPGHub() {
     if (!hasShownWelcome && terminalHistory.length === 0) {      // No delay - show welcome immediately
       addTerminalEntry('🌟 === DIGITAL REALM ACTIVE === 🌟');
       addTerminalEntry('🎭 Welcome to Aadhav\'s Portfolio Hub');
-      addTerminalEntry('🎯 Mission: Discover projects & unlock skills');
+      addTerminalEntry('🎯 Mission: Unlock projects & advanced systems');
       addTerminalEntry('⚡ Status: ONLINE | 5 realms await');
-      addTerminalEntry('🔐 Advanced systems locked (complete projects first)');
+      addTerminalEntry('🔐 Advanced systems locked (unlock projects first)');
       addTerminalEntry('💡 Commands: "help" | "explore" | directionals');
       addTerminalEntry('🚀 Type "help" to begin your quest!');
       setHasShownWelcome(true);
@@ -56,17 +62,25 @@ export function RPGHub() {
     'brickd': Code
   };  // Command mappings with automatic path discovery
   const commandMap: { [key: string]: () => void } = {    'help': () => {
-      const allDirectionalProjectsCompleted = projects.every(project => 
-        completedProjects.includes(project.id)
+      const allDirectionalProjectsUnlocked = projects.every(project =>
+        unlockedProjects.includes(project.id)
       );
-      
+
       addTerminalEntry('🔮 === COMMAND MATRIX === 🔮');
-      if (!allDirectionalProjectsCompleted) {
+      if (!allDirectionalProjectsUnlocked) {
         addTerminalEntry('⚔️  TIER 1 - PROJECT EXPLORATION:');
         addTerminalEntry('   🧭 go north/east/south/west/northeast');
-        addTerminalEntry('🎯 Complete all projects to unlock TIER 2!');
+        addTerminalEntry('🎯 Unlock all projects to access TIER 2!');
+      } else if (!chroniclesUnlocked) {
+        addTerminalEntry('🔓 TIER 2 - INTERNSHIP EXPERIENCES:');
+        addTerminalEntry('   🏢 review chronicles → unlock internships & TIER 3');
+        addTerminalEntry('🎯 Type "review chronicles" to continue!');
       } else {
-        addTerminalEntry('🔓 TIER 2 - ADVANCED SYSTEMS:');
+        addTerminalEntry('🔓 TIER 2 - INTERNSHIP EXPERIENCES:');
+        addTerminalEntry('   📋 Click work experience cards to review (optional)');
+        addTerminalEntry(`   Progress: ${viewedExperiences.length}/${workExperiences.length} experiences reviewed`);
+        addTerminalEntry('');
+        addTerminalEntry('🔓 TIER 3 - ADVANCED SYSTEMS (Unlock gradually):');
         addTerminalEntry('   📦 check inventory → skills');
         addTerminalEntry('   📜 consult the scrolls → research');
         addTerminalEntry('   📡 display beacon → contact');
@@ -76,23 +90,24 @@ export function RPGHub() {
     },    'start journey': () => {
       addTerminalEntry('🚀 === GUIDED EXPLORATION === 🚀');
       addTerminalEntry('🎯 Welcome to my interactive portfolio!');
-      addTerminalEntry('📋 MISSION: Unlock 5 projects → 4 advanced systems');
+      addTerminalEntry('📋 MISSION: Unlock 5 projects → internships → 4 advanced systems');
       addTerminalEntry('🧭 PATH: Use directional commands to unlock projects');
-      addTerminalEntry('🖱️  Then click unlocked icons to explore details');
-      addTerminalEntry('💡 TIP: "go north" → click Palate icon → explore');
-      addTerminalEntry('🌟 Ready? Start with "go north" to unlock first project!');
+      addTerminalEntry('🖱️  Click unlocked icons to explore details (optional)');
+      addTerminalEntry('💡 TIP: Type "go north" to unlock first project');
+      addTerminalEntry('🌟 Ready? Start with "go north"!');
     },'explore': () => {
       addTerminalEntry('🗺️  === EXPLORER\'S GUIDE === 🗺️');
       addTerminalEntry('🎮 NAVIGATION: Use direction commands to unlock projects');
-      addTerminalEntry('🖱️  Click unlocked icons to enter & explore projects');
-      addTerminalEntry('🏆 PROGRESSION: 5 projects → 4 advanced systems → completion');
-      addTerminalEntry('💡 TIP: Commands unlock, clicks enter. Use "help" anytime!');
+      addTerminalEntry('🖱️  Click unlocked icons to explore details (optional)');
+      addTerminalEntry('🏆 PROGRESSION: 5 projects → internships → 4 systems');
+      addTerminalEntry('💡 TIP: Type commands to unlock. Use "help" anytime!');
       addTerminalEntry('🚀 Ready? Try "go north" to unlock your first project!');
     },'go north': () => handleDirectionalCommand('go north'),
     'go east': () => handleDirectionalCommand('go east'),
     'go south': () => handleDirectionalCommand('go south'),
     'go west': () => handleDirectionalCommand('go west'),
     'go northeast': () => handleDirectionalCommand('go northeast'),
+    'review chronicles': () => handleChroniclesUnlock(),
     'check inventory': () => handleSectionUnlock('skills'),
     'consult the scrolls': () => handleSectionUnlock('research'),
     'display beacon': () => handleSectionUnlock('contact'),
@@ -139,25 +154,59 @@ export function RPGHub() {
       'go northeast': '🔓 Northeastern summit reached! Project discovered.'
     };    addTerminalEntry(unlockMessages[direction as keyof typeof unlockMessages] || `🔓 ${directionName} pathway unlocked!`);
     addTerminalEntry(`🎯 Click the ${project.title} icon above to explore this project!`);
+
+    // Check if all projects are now unlocked
+    const allProjectsUnlocked = projects.every(p => unlockedProjects.includes(p.id) || p.id === project.id);
+    if (allProjectsUnlocked) {
+      addTerminalEntry('🎉 === ALL PATHS UNLOCKED === 🎉');
+      addTerminalEntry('🏢 Internship Experiences available! Type "review chronicles"');
+    }
   };
 
-  const handleSectionUnlock = (section: SectionType) => {
-    // Check if Tier 1 (all directional projects) is completed
-    const allDirectionalProjectsCompleted = projects.every(project => 
-      completedProjects.includes(project.id)
-    );    if (!allDirectionalProjectsCompleted) {
-      addTerminalEntry('⚠️  TIER 2 SYSTEMS LOCKED: Complete all directional exploration first!');
-      addTerminalEntry('🗺️  Missing paths: ' + projects.filter(p => !completedProjects.includes(p.id)).map(p => p.direction.replace('go ', '')).join(', '));
+  const handleChroniclesUnlock = () => {
+    // Check if all projects are unlocked (not necessarily clicked)
+    const allDirectionalProjectsUnlocked = projects.every(project =>
+      unlockedProjects.includes(project.id)
+    );
+
+    if (!allDirectionalProjectsUnlocked) {
+      addTerminalEntry('⚠️  INTERNSHIP EXPERIENCES LOCKED: Unlock all directional paths first!');
+      addTerminalEntry('🗺️  Missing paths: ' + projects.filter(p => !unlockedProjects.includes(p.id)).map(p => p.direction.replace('go ', '')).join(', '));
       return;
     }
 
-    const requiredProjects = getRequiredProjectsForSection();
-    const hasRequiredProjects = requiredProjects.every(id => completedProjects.includes(id));
+    if (chroniclesUnlocked) {
+      addTerminalEntry('📋 Internship Experiences already accessible!');
+      addTerminalEntry('🎯 Click the work experience cards above to review them.');
+      return;
+    }
 
-    if (!hasRequiredProjects) {
-      const missing = requiredProjects.filter(id => !completedProjects.includes(id));
-      const missingTitles = missing.map(id => projects.find(p => p.id === id)?.title).join(', ');
-      addTerminalEntry(`Quest requirements not met. Complete: ${missingTitles}`);
+    // Unlock the chronicles section (but NOT Tier 3 systems yet)
+    setChroniclesUnlocked(true);
+    addTerminalEntry('🏢 === INTERNSHIP EXPERIENCES UNLOCKED === 🏢');
+    addTerminalEntry('📋 Work experience archive now accessible!');
+    addTerminalEntry('🎯 Click the experience cards above to explore each role.');
+    addTerminalEntry('✨ TIER 3 commands now available in Quick Commands!');
+  };
+
+  const handleWorkExperienceClick = (experienceId: string) => {
+    if (!chroniclesUnlocked) {
+      addTerminalEntry('🔒 Internship Experiences locked! Unlock all directional paths first.');
+      addTerminalEntry('💡 Type "review chronicles" after unlocking all 5 directions.');
+      return;
+    }
+
+    const experience = workExperiences.find(exp => exp.id === experienceId);
+    if (!experience) return;
+
+    setCurrentWorkExperience(experience);
+    setCurrentView('workExperience');
+  };
+
+  const handleSectionUnlock = (section: SectionType) => {
+    if (!chroniclesUnlocked) {
+      addTerminalEntry('⚠️  TIER 3 SYSTEMS LOCKED: Unlock Internship Experiences first!');
+      addTerminalEntry('💡 Complete all projects, then type "review chronicles" to unlock TIER 2.');
       return;
     }
 
@@ -287,6 +336,42 @@ export function RPGHub() {
       />
     );
   }
+
+  // Work Experience view
+  if (currentView === 'workExperience' && currentWorkExperience) {
+    return (
+      <WorkExperienceView
+        experience={currentWorkExperience}
+        onBack={() => {
+          // Mark experience as viewed when returning
+          if (!viewedExperiences.includes(currentWorkExperience.id)) {
+            setViewedExperiences([...viewedExperiences, currentWorkExperience.id]);
+            addTerminalEntry(`✅ EXPERIENCE REVIEWED: ${currentWorkExperience.company}`);
+            addTerminalEntry(`📋 Professional background documented!`);
+
+            // Check if all experiences are now viewed
+            const newViewedCount = viewedExperiences.length + 1;
+            if (newViewedCount === workExperiences.length) {
+              addTerminalEntry('🎉 === ALL INTERNSHIPS EXPLORED === 🎉');
+              addTerminalEntry('✨ Work experience fully documented!');
+            } else {
+              // Show remaining experiences
+              const remainingExperiences = workExperiences.filter(
+                exp => !viewedExperiences.includes(exp.id) && exp.id !== currentWorkExperience.id
+              );
+              if (remainingExperiences.length > 0) {
+                const nextExp = remainingExperiences[0];
+                addTerminalEntry(`🎯 Next: Review ${nextExp.company} experience`);
+              }
+            }
+          }
+          setCurrentWorkExperience(null);
+          setCurrentView('hub');
+        }}
+      />
+    );
+  }
+
   // Section view
   if (currentView === 'section' && currentSection) {    return (      <SectionView 
         section={currentSection}
@@ -330,8 +415,9 @@ export function RPGHub() {
       />);
   }
 
-  // Check for completion - all projects completed and all sections unlocked
-  const allCompleted = completedProjects.length === projects.length && 
+  // Check for completion - all projects completed, all experiences viewed, and all sections unlocked
+  const allCompleted = completedProjects.length === projects.length &&
+                      viewedExperiences.length === workExperiences.length &&
                       skillsUnlocked && researchUnlocked && contactUnlocked && resumeUnlocked;
     
   // Show completion screen only if completed and hasn't been dismissed
@@ -386,23 +472,31 @@ export function RPGHub() {
                 <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2"></span>
                 Terminal
               </h3>              <div className="flex-1 min-h-0">
-                <TerminalSimple 
+                <TerminalSimple
                   history={terminalHistory}
                   onCommand={handleCommand}
-                  quickCommands={(() => {                    const allProjectsCompleted = projects.every(project => 
-                      completedProjects.includes(project.id)
+                  quickCommands={(() => {
+                    const allProjectsUnlocked = projects.every(project =>
+                      unlockedProjects.includes(project.id)
                     );
-                    
+
                     const commands = [
                       { label: 'Help', command: 'help', icon: '❓' },
                       { label: 'Explore', command: 'explore', icon: '🗺️' }
-                    ];if (allProjectsCompleted) {
-                      // Tier 2 commands - use actual command text
+                    ];
+
+                    if (chroniclesUnlocked) {
+                      // Tier 3 commands - Advanced Systems (show immediately when chronicles unlocked)
                       commands.push(
                         { label: 'check inventory', command: 'check inventory', icon: '📦' },
                         { label: 'consult the scrolls', command: 'consult the scrolls', icon: '📜' },
                         { label: 'display beacon', command: 'display beacon', icon: '📡' },
                         { label: 'get apprenticeship', command: 'get apprenticeship', icon: '📋' }
+                      );
+                    } else if (allProjectsUnlocked) {
+                      // Tier 2 - Show review chronicles command (once all projects unlocked)
+                      commands.push(
+                        { label: 'review chronicles', command: 'review chronicles', icon: '🏢' }
                       );
                     } else {
                       // Tier 1 commands - only show locked directions
@@ -512,7 +606,35 @@ export function RPGHub() {
                 />
                 <div></div>
               </div>
-            </motion.div>            {/* Advanced Section Cards - Expand to fill space */}
+            </motion.div>
+
+            {/* Internship Experiences Section - Middle Tier */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-slate-900/30 backdrop-blur-md border border-slate-700/50 rounded-lg p-3"
+            >
+              <h3 className="text-lg font-semibold mb-3 text-center text-orange-400 flex items-center justify-center">
+                <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                Internship Experiences
+                <span className="w-2 h-2 bg-orange-400 rounded-full ml-2"></span>
+              </h3>
+              <div className="flex items-center justify-center gap-6">
+                {workExperiences.map((experience) => (
+                  <WorkExperienceCard
+                    key={experience.id}
+                    experience={experience}
+                    chroniclesUnlocked={chroniclesUnlocked}
+                    viewed={viewedExperiences.includes(experience.id)}
+                    allProjectsUnlocked={projects.every(project => unlockedProjects.includes(project.id))}
+                    onClick={() => handleWorkExperienceClick(experience.id)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Advanced Section Cards - Expand to fill space */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -526,32 +648,32 @@ export function RPGHub() {
               </h3>
                 <div className="flex-1 flex items-center justify-center">
                 <div className="grid grid-cols-4 gap-6 justify-items-center">
-                <SectionCard 
+                <SectionCard
                   title="Skills"
                   icon={Code}
                   unlocked={skillsUnlocked}
-                  allProjectsCompleted={projects.every(project => completedProjects.includes(project.id))}
+                  chroniclesUnlocked={chroniclesUnlocked}
                   onClick={() => handleSectionCardClick('skills')}
                 />
-                <SectionCard 
+                <SectionCard
                   title="Research"
                   icon={Brain}
                   unlocked={researchUnlocked}
-                  allProjectsCompleted={projects.every(project => completedProjects.includes(project.id))}
+                  chroniclesUnlocked={chroniclesUnlocked}
                   onClick={() => handleSectionCardClick('research')}
                 />
-                <SectionCard 
+                <SectionCard
                   title="Contact"
                   icon={Mail}
                   unlocked={contactUnlocked}
-                  allProjectsCompleted={projects.every(project => completedProjects.includes(project.id))}
+                  chroniclesUnlocked={chroniclesUnlocked}
                   onClick={() => handleSectionCardClick('contact')}
                 />
-                <SectionCard 
+                <SectionCard
                   title="Resume"
                   icon={FileText}
                   unlocked={resumeUnlocked}
-                  allProjectsCompleted={projects.every(project => completedProjects.includes(project.id))}
+                  chroniclesUnlocked={chroniclesUnlocked}
                   onClick={() => handleSectionCardClick('resume')}                />
               </div>
               </div>
@@ -564,15 +686,15 @@ export function RPGHub() {
             >              <div className="flex justify-between items-center mb-1">
                 <span className="text-slate-300 text-sm">Progress</span>
                 <span className="text-cyan-400 text-sm font-medium">
-                  {completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}/9
+                  {completedProjects.length + viewedExperiences.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length}/11
                 </span>
               </div>
               <div className="w-full bg-slate-800 rounded-full h-2">
-                <motion.div 
+                <motion.div
                   className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full"
                   initial={{ width: 0 }}
-                  animate={{ 
-                    width: `${((completedProjects.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length) / 9) * 100}%` 
+                  animate={{
+                    width: `${((completedProjects.length + viewedExperiences.length + [skillsUnlocked, researchUnlocked, contactUnlocked, resumeUnlocked].filter(Boolean).length) / 11) * 100}%`
                   }}
                   transition={{ duration: 1, delay: 0.5 }}
                 /></div>
@@ -658,11 +780,11 @@ function ProjectIcon({
         {/* Project Name Label */}
         <motion.div
           className={`
-            px-2 py-0.5 rounded text-xs font-medium max-w-18 text-center
-            ${isCompleted 
-              ? 'bg-green-900/60 text-green-300' 
-              : isUnlocked 
-              ? 'bg-blue-900/60 text-blue-300' 
+            px-2 py-0.5 rounded text-xs font-medium max-w-24 text-center break-words
+            ${isCompleted
+              ? 'bg-green-900/60 text-green-300'
+              : isUnlocked
+              ? 'bg-blue-900/60 text-blue-300'
               : 'bg-slate-800/60 text-slate-400'
             }
           `}
@@ -677,15 +799,15 @@ function ProjectIcon({
   }
 
 // Section Card Component
-function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClick }: {
+function SectionCard({ title, icon: Icon, unlocked, chroniclesUnlocked, onClick }: {
   title: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   unlocked: boolean;
-  allProjectsCompleted: boolean;
+  chroniclesUnlocked: boolean;
   onClick: () => void;
 }) {
   const isClickable = unlocked;
-  const isAvailable = allProjectsCompleted;
+  const isAvailable = chroniclesUnlocked;
 
   return (
     <div className="flex flex-col items-center gap-2">      <motion.div
@@ -749,6 +871,97 @@ function SectionCard({ title, icon: Icon, unlocked, allProjectsCompleted, onClic
         transition={{ delay: 0.1 }}
       >
         {title}
+      </motion.div>
+    </div>
+  );
+}
+
+// Work Experience Card Component
+function WorkExperienceCard({
+  experience,
+  chroniclesUnlocked,
+  viewed,
+  allProjectsUnlocked,
+  onClick
+}: {
+  experience: WorkExperience;
+  chroniclesUnlocked: boolean;
+  viewed: boolean;
+  allProjectsUnlocked: boolean;
+  onClick: () => void;
+}) {
+  const isClickable = chroniclesUnlocked;
+  const isAvailable = allProjectsUnlocked;
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <motion.div
+        className={`
+          relative h-10 w-10 rounded-lg cursor-pointer
+          flex items-center justify-center transition-all duration-200
+          ${viewed
+            ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-lg shadow-green-500/25'
+            : isClickable
+            ? 'bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/25 hover:from-orange-400 hover:to-orange-500'
+            : isAvailable
+            ? 'bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg shadow-slate-500/25'
+            : 'bg-gradient-to-br from-slate-700 to-slate-800 cursor-not-allowed opacity-60'
+          }
+        `}
+        whileHover={isClickable || isAvailable ? { scale: 1.05 } : {}}
+        whileTap={isClickable ? { scale: 0.95 } : {}}
+        onClick={isClickable ? onClick : undefined}
+      >
+        <Briefcase
+          size={18}
+          className={
+            viewed
+              ? 'text-green-100'
+              : isClickable
+              ? 'text-orange-100'
+              : isAvailable
+              ? 'text-slate-200'
+              : 'text-slate-500'
+          }
+        />
+        {viewed && (
+          <motion.div
+            className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+          >
+            <span className="text-green-900 text-xs font-bold">✓</span>
+          </motion.div>
+        )}
+        {!isAvailable && (
+          <motion.div
+            className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-slate-600 rounded-full flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+          >
+            <span className="text-slate-400 text-xs">🔒</span>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Experience Name Label */}
+      <motion.div
+        className={`
+          px-2 py-0.5 rounded text-xs font-medium max-w-24 text-center
+          ${viewed
+            ? 'bg-green-900/60 text-green-300'
+            : isClickable
+            ? 'bg-orange-900/60 text-orange-300'
+            : isAvailable
+            ? 'bg-slate-800/60 text-slate-400'
+            : 'bg-slate-800/60 text-slate-500'
+          }
+        `}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        {experience.company}
       </motion.div>
     </div>
   );

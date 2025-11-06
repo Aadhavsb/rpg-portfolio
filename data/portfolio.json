@@ -110,5 +110,36 @@
     "email": "bharadwajaadhav@gmail.com",
     "github": "https://github.com/Aadhavsb",
     "linkedin": "https://www.linkedin.com/in/aadhav-bharadwaj/"
-  }
+  },
+  "workExperience": [
+    {
+      "id": "eaton",
+      "title": "AI Software Engineer Intern",
+      "company": "Eaton Corporation",
+      "duration": "Sep 2025 – Jan 2026 (expected)",
+      "description": "Working on a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots.",
+      "achievements": [
+        "Beginning work on a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots",
+        "Developing a secure interface with JWT authentication, customizable training flows, and automated KPI-driven evaluations",
+        "Collaborating with business stakeholders to extract actionable insights from service transcripts and optimize support strategies"
+      ],
+      "technologies": ["Python", "RAG", "JWT", "Generative AI", "Chatbots"],
+      "unlocked": false,
+      "viewed": false
+    },
+    {
+      "id": "kiosk",
+      "title": "Software Engineer Intern",
+      "company": "Interactive Kiosk Project, WSOM, CWRU",
+      "duration": "June 2025 – Present",
+      "description": "Built a dual-screen AI-powered kiosk with GPT-4, HeyGen avatars, and real-time speech-to-text chat interface.",
+      "achievements": [
+        "Built a dual-screen AI-powered kiosk with GPT-4, HeyGen avatars, and real-time speech-to-text chat interface",
+        "Developed document-grounded RAG system using Pinecone + OpenAI embeddings for scalable retrieval"
+      ],
+      "technologies": ["GPT-4", "HeyGen", "RAG", "Pinecone", "OpenAI", "Speech-to-Text"],
+      "unlocked": false,
+      "viewed": false
+    }
+  ]
 }

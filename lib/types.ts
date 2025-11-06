@@ -26,3 +26,15 @@ export interface Command {
   unlocked: boolean;
   action: () => void;
 }
+
+export interface WorkExperience {
+  id: string;
+  title: string;
+  company: string;
+  duration: string;
+  description: string;
+  achievements: string[];
+  technologies: string[];
+  unlocked: boolean;
+  viewed: boolean;
+}
