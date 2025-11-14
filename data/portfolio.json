@@ -116,28 +116,45 @@
       "id": "eaton",
       "title": "AI Software Engineer Intern",
       "company": "Eaton Corporation",
-      "duration": "Sep 2025 – Jan 2026 (expected)",
-      "description": "Working on a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots.",
+      "duration": "Sep 2025 – Jan 2026 (exp.)",
+      "description": "Built a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots, improving training realism and coverage.",
       "achievements": [
-        "Beginning work on a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots",
-        "Developing a secure interface with JWT authentication, customizable training flows, and automated KPI-driven evaluations",
-        "Collaborating with business stakeholders to extract actionable insights from service transcripts and optimize support strategies"
+        "Began building a generative AI platform to simulate customer interactions and enhance agent training via RAG-based chatbots, improving training realism and coverage",
+        "Implemented the platform backend as a MERN application with vector retrieval pipelines, embedding-based search, and modular training flows, improving onboarding efficiency by 40%",
+        "Added WebSocket-driven training modules, JWT-secured APIs, RBAC, and KPI dashboards for live analytics and automated evaluations",
+        "Deployed via Docker + CI/CD, supporting 50+ concurrent users and extracting insights from 10K+ service transcripts using embedding + GPT analysis"
       ],
-      "technologies": ["Python", "RAG", "JWT", "Generative AI", "Chatbots"],
+      "technologies": ["MERN Stack", "MongoDB", "Express", "React", "Node.js", "Docker", "CI/CD", "WebSocket", "JWT", "RBAC", "RAG", "Vector Retrieval", "GPT", "Embeddings"],
       "unlocked": false,
       "viewed": false
     },
     {
       "id": "kiosk",
       "title": "Software Engineer Intern",
-      "company": "Interactive Kiosk Project, WSOM, CWRU",
-      "duration": "June 2025 – Present",
-      "description": "Built a dual-screen AI-powered kiosk with GPT-4, HeyGen avatars, and real-time speech-to-text chat interface.",
+      "company": "AI Avatar Kiosk Project, WSOM, CWRU",
+      "duration": "Jun 2025 – Present",
+      "description": "Built a dual-screen AI avatar kiosk with Next.js, AWS Lambda, and HeyGen avatars.",
       "achievements": [
-        "Built a dual-screen AI-powered kiosk with GPT-4, HeyGen avatars, and real-time speech-to-text chat interface",
-        "Developed document-grounded RAG system using Pinecone + OpenAI embeddings for scalable retrieval"
+        "Built a dual-screen AI avatar kiosk with Next.js, AWS Lambda, and HeyGen avatars",
+        "Integrated RAG retrieval via Pinecone + embeddings, maintaining sub-1.5s latency",
+        "Added IndexedDB caching and cross-session sync for 100+ daily users",
+        "Implemented CWRU SSO (CAS + JWT) and secure AWS S3 file handling"
       ],
-      "technologies": ["GPT-4", "HeyGen", "RAG", "Pinecone", "OpenAI", "Speech-to-Text"],
+      "technologies": ["Next.js", "AWS Lambda", "HeyGen", "Pinecone", "RAG", "Embeddings", "IndexedDB", "CAS", "JWT", "AWS S3"],
+      "unlocked": false,
+      "viewed": false
+    },
+    {
+      "id": "wildlife-sos",
+      "title": "Software Developer",
+      "company": "Wildlife SOS",
+      "duration": "Jun 2025 – Jul 2025",
+      "description": "Developed an internal tracker for 1000+ users/12 sites using Next.js, Express, MongoDB, OAuth.",
+      "achievements": [
+        "Developed an internal tracker for 1000+ users/12 sites using Next.js, Express, MongoDB, OAuth",
+        "Deployed securely via Vercel with rate limiting and logging"
+      ],
+      "technologies": ["Next.js", "Express", "MongoDB", "OAuth", "Vercel"],
       "unlocked": false,
       "viewed": false
     }
