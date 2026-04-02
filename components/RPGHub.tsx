@@ -169,47 +169,13 @@ export function RPGHub() {
       return;
     }
 
-    // Sequential unlocking for Tier 2 commands
-    const sectionOrder: SectionType[] = ['skills', 'research', 'contact', 'resume'];
-    const currentIndex = sectionOrder.indexOf(section);
-    
-    // Check if previous sections are unlocked
-    for (let i = 0; i < currentIndex; i++) {
-      const prevSection = sectionOrder[i];
-      const isUnlocked = {
-        skills: skillsUnlocked,
-        research: researchUnlocked,
-        contact: contactUnlocked,
-        resume: resumeUnlocked
-      }[prevSection];
-      
-      if (!isUnlocked) {
-        const prevCommand = {
-          skills: 'check inventory',
-          research: 'consult the scrolls',
-          contact: 'display beacon',
-          resume: 'get apprenticeship'
-        }[prevSection];        addTerminalEntry(`Unlock previous section first: "${prevCommand}"`);
-        return;
-      }
-    }    // Unlock and show the section
-    switch (section) {
-      case 'skills':
-        setSkillsUnlocked(true);
-        addTerminalEntry('Skills inventory activated.');
-        break;
-      case 'research':
-        setResearchUnlocked(true);
-        addTerminalEntry('Research archives unlocked.');
-        break;
-      case 'contact':
-        setContactUnlocked(true);
-        addTerminalEntry('Contact channels active.');
-        break;
-      case 'resume':
-        setResumeUnlocked(true);
-        addTerminalEntry('Resume accessible.');
-        break;
+    // Unlock all sections at once
+    if (!skillsUnlocked) {
+      setSkillsUnlocked(true);
+      setResearchUnlocked(true);
+      setContactUnlocked(true);
+      setResumeUnlocked(true);
+      addTerminalEntry('All sections unlocked: Skills, Research, Contact, Resume.');
     }
 
     setCurrentSection(section);
@@ -244,14 +210,17 @@ export function RPGHub() {
   };
 
   const handleSectionCardClick = (section: SectionType) => {
-    const isUnlocked = {
-      skills: skillsUnlocked,
-      research: researchUnlocked,
-      contact: contactUnlocked,
-      resume: resumeUnlocked
-    }[section];
-
-    if (isUnlocked) {
+    if (skillsUnlocked) {
+      // All sections are unlocked together, so just navigate
+      setCurrentSection(section);
+      setCurrentView('section');
+    } else if (chroniclesUnlocked) {
+      // Unlock all sections at once and navigate
+      setSkillsUnlocked(true);
+      setResearchUnlocked(true);
+      setContactUnlocked(true);
+      setResumeUnlocked(true);
+      addTerminalEntry('All sections unlocked: Skills, Research, Contact, Resume.');
       setCurrentSection(section);
       setCurrentView('section');
     }
