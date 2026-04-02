@@ -147,7 +147,11 @@ export function RPGHub() {
     }
 
     setChroniclesUnlocked(true);
-    addTerminalEntry('Internship experiences unlocked! Click cards to review.');
+    setSkillsUnlocked(true);
+    setResearchUnlocked(true);
+    setContactUnlocked(true);
+    setResumeUnlocked(true);
+    addTerminalEntry('Internship experiences unlocked! All advanced sections now available.');
   };
 
   const handleWorkExperienceClick = (experienceId: string) => {
@@ -167,15 +171,6 @@ export function RPGHub() {
     if (!chroniclesUnlocked) {
       addTerminalEntry('Unlock internships first. Type "review chronicles".');
       return;
-    }
-
-    // Unlock all sections at once
-    if (!skillsUnlocked) {
-      setSkillsUnlocked(true);
-      setResearchUnlocked(true);
-      setContactUnlocked(true);
-      setResumeUnlocked(true);
-      addTerminalEntry('All sections unlocked: Skills, Research, Contact, Resume.');
     }
 
     setCurrentSection(section);
@@ -211,16 +206,6 @@ export function RPGHub() {
 
   const handleSectionCardClick = (section: SectionType) => {
     if (skillsUnlocked) {
-      // All sections are unlocked together, so just navigate
-      setCurrentSection(section);
-      setCurrentView('section');
-    } else if (chroniclesUnlocked) {
-      // Unlock all sections at once and navigate
-      setSkillsUnlocked(true);
-      setResearchUnlocked(true);
-      setContactUnlocked(true);
-      setResumeUnlocked(true);
-      addTerminalEntry('All sections unlocked: Skills, Research, Contact, Resume.');
       setCurrentSection(section);
       setCurrentView('section');
     }
