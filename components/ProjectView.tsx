@@ -20,7 +20,7 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      className="min-h-screen p-8 flex items-center justify-center"
+      className="min-h-screen p-8 flex items-center justify-center bg-gradient-to-br from-slate-900 via-stone-900 to-amber-900 font-mono"
     >
       <div className="max-w-4xl w-full">
         {/* Back Button */}
@@ -28,7 +28,7 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={onBack}
-          className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          className="mb-8 flex items-center gap-2 text-amber-400/70 hover:text-amber-300 transition-colors"
         >
           <ArrowLeft size={20} />
           Back to Hub
@@ -42,15 +42,15 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-3 mb-4">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold text-amber-300">
               {project.title}
             </h1>
             {isCompleted && (
-              <CheckCircle size={32} className="text-green-500" />
+              <CheckCircle size={32} className="text-amber-500" />
             )}
           </div>
-          <p className="text-xl text-blue-300 mb-2">{project.pathLabel}</p>
-          <p className="text-gray-400">{project.direction}</p>
+          <p className="text-xl text-amber-400 mb-2">{project.pathLabel}</p>
+          <p className="text-amber-200/50">{project.direction}</p>
         </motion.div>
 
         {/* Project Card */}
@@ -58,19 +58,19 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-8"
+          className="bg-black/80 border-2 border-amber-500/30 rounded-lg p-8 mb-8"
         >
           {/* Description */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-white mb-4">About This Project</h2>
-            <p className="text-gray-300 text-lg leading-relaxed">
+            <h2 className="text-xl text-amber-300 mb-4">About This Quest</h2>
+            <p className="text-amber-200/80 text-lg leading-relaxed">
               {project.description}
             </p>
           </div>
 
-          {/* Tech Stack Visualization */}
+          {/* Tech Stack */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-white mb-4">Technologies Used</h3>
+            <h3 className="text-lg text-amber-300 mb-4">Arsenal</h3>
             <div className="flex flex-wrap gap-3">
               {getProjectTechStack(project.id).map((tech, index) => (
                 <motion.span
@@ -78,7 +78,7 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.6 + index * 0.1 }}
-                  className="px-4 py-2 bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-300 text-sm font-medium"
+                  className="px-3 py-1 bg-amber-600/20 border border-amber-500/30 rounded text-amber-300 text-sm"
                 >
                   {tech}
                 </motion.span>
@@ -96,7 +96,7 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 rounded text-amber-200 transition-colors"
               >
                 <Github size={20} />
                 View on GitHub
@@ -111,14 +111,16 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
                 href={project.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 rounded text-amber-200 transition-colors"
               >
                 Live Demo
                 <ExternalLink size={16} />
               </motion.a>
             )}
           </div>
-        </motion.div>        {/* Project Complete Status */}
+        </motion.div>
+
+        {/* Project Complete Status */}
         {isCompleted && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -126,7 +128,7 @@ export function ProjectView({ project, onBack }: ProjectViewProps) {
             transition={{ delay: 1 }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-600/20 border border-green-500/30 rounded-lg text-green-400 font-semibold">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600/20 border border-amber-500/30 rounded-lg text-amber-400 font-semibold">
               <CheckCircle size={20} />
               Quest Completed!
             </div>
@@ -144,8 +146,9 @@ function getProjectTechStack(projectId: string): string[] {
     'expressink': ['Python', 'TensorFlow', 'Computer Vision', 'React', 'Machine Learning'],
     'premier-league': ['Python', 'Pandas', 'Scikit-learn', 'Statistics', 'Data Analysis'],
     'inventory360': ['React', 'MongoDB', 'Zod', 'Authentication', 'Node.js', 'Express'],
-    'brickd': ['C#', 'Unity', 'Game Development', 'Physics', 'Level Design']
+    'brickd': ['C#', 'Unity', 'Game Development', 'Physics', 'Level Design'],
+    'arguably': ['Next.js', 'Mediasoup', 'Socket.io', 'Prisma', 'PostgreSQL', 'OpenAI Whisper', 'Gemini LLM', 'WebRTC']
   };
-  
+
   return techStacks[projectId] || [];
 }

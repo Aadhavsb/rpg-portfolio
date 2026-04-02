@@ -11,7 +11,7 @@
     },    {
       "id": "expressink",
       "title": "ExpressInk",
-      "direction": "go east",
+      "direction": "go northeast",
       "pathLabel": "Hackathon project for a good cause",
       "description": "Built during a socially-driven hackathon, ExpressInk helps identify children's emotional states through their drawings using AI-powered computer vision. It leverages React for the interface and Node.js for backend logic. Designed to assist in autism screening, it showcases both technical and empathetic problem-solving skills.",
       "githubUrl": "https://github.com/Aadhavsb/ExpressInk",
@@ -29,7 +29,7 @@
     },    {
       "id": "inventory360",
       "title": "Inventory360",
-      "direction": "go west",
+      "direction": "go northwest",
       "pathLabel": "Use your skills professionally",
       "description": "Inventory360 is a secure, scalable inventory management system designed for an organization with 12 distributed locations and over 1000 users. It features a highly interactive and user-friendly frontend, robust data validation using Zod, secure MongoDB integration, and a real-time asset tracking dashboard. It reflects my ability to build professional-grade software used by large, distributed teams.",
       "githubUrl": "https://github.com/Aadhavsb/inventory360",
@@ -38,11 +38,21 @@
     },    {
       "id": "brickd",
       "title": "Brick'd Up",
-      "direction": "go northeast",
+      "direction": "go southeast",
       "pathLabel": "Explore your creative side",
       "description": "Brick'd is a 2D platformer built in C# using the Unity game engine, featuring inventive level mechanics and engaging gameplay. The game was built as part of a university team project and is now published on Itch.io. It reflects my creative instincts, ability to collaborate, and capacity to deliver polished, user-focused software.",
       "githubUrl": "https://github.com/Aadhavsb/SPRING2025ECSE290Team4",
       "demoUrl": "https://ecse-csds290.itch.io/brickdup",
+      "unlocked": false,
+      "completed": false
+    },
+    {
+      "id": "arguably",
+      "title": "Arguably",
+      "direction": "go southwest",
+      "pathLabel": "Build real-time debate systems",
+      "description": "Arguably is a rules-driven debate engine built for CSDS 393/493. It uses mediasoup v3 SFU for low-latency WebRTC media relay and Socket.io for authoritative server-side turn synchronization. The persistent data model uses Prisma ORM to manage session-local roles and audit-compliant participation logs across concurrent debate rooms, with a pipeline for OpenAI Whisper and Gemini LLM to integrate live transcription and automated claim detection with surfaced evidence links.",
+      "githubUrl": "https://github.com/Aadhavsb/arguably",
       "unlocked": false,
       "completed": false
     }
@@ -97,6 +107,71 @@
       "name": "Docker",
       "icon": "🐳",
       "category": "DevOps"
+    },
+    {
+      "name": "SQL",
+      "icon": "🗄️",
+      "category": "Languages"
+    },
+    {
+      "name": "R",
+      "icon": "📊",
+      "category": "Languages"
+    },
+    {
+      "name": "C",
+      "icon": "⚙️",
+      "category": "Languages"
+    },
+    {
+      "name": "C++",
+      "icon": "⚙️",
+      "category": "Languages"
+    },
+    {
+      "name": "TypeScript",
+      "icon": "🔷",
+      "category": "Languages"
+    },
+    {
+      "name": "HTML/CSS",
+      "icon": "🌐",
+      "category": "Frontend"
+    },
+    {
+      "name": "SystemVerilog",
+      "icon": "🔌",
+      "category": "Languages"
+    },
+    {
+      "name": "Assembly",
+      "icon": "🔧",
+      "category": "Languages"
+    },
+    {
+      "name": "PyTorch",
+      "icon": "🔥",
+      "category": "AI/ML"
+    },
+    {
+      "name": "TensorFlow",
+      "icon": "🧠",
+      "category": "AI/ML"
+    },
+    {
+      "name": "Git",
+      "icon": "🔀",
+      "category": "DevOps"
+    },
+    {
+      "name": "Unity",
+      "icon": "🎮",
+      "category": "Tools"
+    },
+    {
+      "name": "Linux",
+      "icon": "🐧",
+      "category": "DevOps"
     }
   ],
   "research": {
@@ -141,6 +216,37 @@
         "Implemented CWRU SSO (CAS + JWT) and secure AWS S3 file handling"
       ],
       "technologies": ["Next.js", "AWS Lambda", "HeyGen", "Pinecone", "RAG", "Embeddings", "IndexedDB", "CAS", "JWT", "AWS S3"],
+      "unlocked": false,
+      "viewed": false
+    },
+    {
+      "id": "teaching-assistant",
+      "title": "Teaching Assistant",
+      "company": "Case Western Reserve University",
+      "duration": "Aug 2024 – Present",
+      "description": "Lead weekly labs and sessions for 100+ students in computer science courses, holding 5+ hours per week of office hours and creating tools to streamline grading workflows.",
+      "achievements": [
+        "Lead weekly labs and recitation sessions for 100+ students in introductory CS courses",
+        "Hold 5+ hours per week of office hours providing one-on-one debugging and conceptual help",
+        "Graded 200+ submissions per semester with consistent rubric application",
+        "Created Python-based autograding and visualization tools to streamline evaluation workflows"
+      ],
+      "technologies": ["Python"],
+      "unlocked": false,
+      "viewed": false
+    },
+    {
+      "id": "ai-ml-research",
+      "title": "Undergraduate AI/ML Researcher",
+      "company": "Prof. Gourav Datta's Lab, CWRU",
+      "duration": "Aug 2024 – Present",
+      "description": "Researching KV cache optimization and dynamic SVD compression for efficient transformer inference on HPC clusters.",
+      "achievements": [
+        "Built KV cache optimization pipeline using tensor decomposition and pruning in PyTorch",
+        "Researching dynamic SVD compression strategies for efficient transformer inference",
+        "Deployed experiments across Dockerized HPC cluster environments for reproducibility"
+      ],
+      "technologies": ["Python", "PyTorch", "Docker", "HPC"],
       "unlocked": false,
       "viewed": false
     },

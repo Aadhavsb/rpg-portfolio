@@ -33,16 +33,12 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-stone-900 to-slate-900 text-white overflow-hidden">
       {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-10">
-        <div 
-          className="absolute inset-0" 
-          style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), 
-                             radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                             radial-gradient(circle at 40% 80%, rgba(120, 200, 255, 0.3) 0%, transparent 50%)`
-          }} 
+      <div className="fixed inset-0 opacity-[0.02]">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)]"
+          style={{ backgroundSize: '50px 50px' }}
         />
       </div>
 
@@ -99,7 +95,7 @@ export default function HomePage() {
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full"
+            className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full"
           />
         </div>
       )}
